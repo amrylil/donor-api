@@ -2,19 +2,18 @@ package usecase
 
 import (
 	"context"
+	"donor-api/internal/delivery/http/dto" // Hanya di-import untuk LoginResult
 	"donor-api/internal/entity"
-	"errors"
-
 	"donor-api/internal/infrastructure/security"
 	"donor-api/internal/repository"
+	"errors"
 
 	"gorm.io/gorm"
 )
 
-// AuthUsecase mendefinisikan "kontrak" untuk logika bisnis autentikasi
 type AuthUsecase interface {
-	Register(ctx context.Context, name, email, password string) (*entity.User, error)
-	Login(ctx context.Context, email, password string) (string, error)
+	Register(ctx context.Context, req dto.RegisterRequest) (*entity.User, error)
+	Login(ctx context.Context, req dto.LoginRequest) (*dto.LoginResponse, error)
 }
 
 type authUsecaseImpl struct {
@@ -30,8 +29,9 @@ func NewAuthUsecase(userRepo repository.UserRepository, jwtService *security.JWT
 	}
 }
 
-func (u *authUsecaseImpl) Register(ctx context.Context, name, email, password string) (*entity.User, error) {
-	_, err := u.userRepo.FindByEmail(ctx, email)
+// --- PERBAIKAN DI FUNGSI REGISTER ---
+func (u *authUsecaseImpl) Register(ctx context.Context, req dto.RegisterRequest) (*entity.User, error) {
+	_, err := u.userRepo.FindByEmail(ctx, req.Email)
 	if err == nil {
 		return nil, errors.New("email already exists")
 	}
@@ -39,33 +39,51 @@ func (u *authUsecaseImpl) Register(ctx context.Context, name, email, password st
 		return nil, err
 	}
 
-	hashedPassword, err := security.HashPassword(password)
+	hashedPassword, err := security.HashPassword(req.Password)
 	if err != nil {
 		return nil, err
 	}
 
 	user := &entity.User{
-		Name:     name,
-		Email:    email,
+		Name:     req.Name,
+		Email:    req.Email,
 		Password: hashedPassword,
+		Role:     "user",
 	}
 
 	if err := u.userRepo.Save(ctx, user); err != nil {
 		return nil, err
 	}
-	user.Password = "" // Jangan kirim password hash ke response
+
 	return user, nil
 }
 
-func (u *authUsecaseImpl) Login(ctx context.Context, email, password string) (string, error) {
-	user, err := u.userRepo.FindByEmail(ctx, email)
+func (u *authUsecaseImpl) Login(ctx context.Context, req dto.LoginRequest) (*dto.LoginResponse, error) {
+	user, err := u.userRepo.FindByEmail(ctx, req.Email)
 	if err != nil {
-		return "", errors.New("invalid credentials")
+		return nil, errors.New("invalid credentials")
 	}
 
-	if !security.CheckPasswordHash(password, user.Password) {
-		return "", errors.New("invalid credentials")
+	if !security.CheckPasswordHash(req.Password, user.Password) {
+		return nil, errors.New("invalid credentials")
 	}
 
-	return u.jwtService.GenerateToken(user.ID)
+	token, err := u.jwtService.GenerateToken(user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	userResponse := dto.UserResponse{
+		ID:    user.ID.String(),
+		Name:  user.Name,
+		Email: user.Email,
+		Role:  user.Role,
+	}
+
+	result := &dto.LoginResponse{
+		Token: token,
+		User:  userResponse,
+	}
+
+	return result, nil
 }

@@ -8,13 +8,11 @@ import (
 	"github.com/google/uuid"
 )
 
-// JWTService menangani pembuatan dan validasi token
 type JWTService struct {
 	secretKey       string
 	expirationHours int64
 }
 
-// NewJWTService membuat instance baru dari JWTService
 func NewJWTService(secretKey string, expirationHours int64) *JWTService {
 	return &JWTService{
 		secretKey:       secretKey,
@@ -22,10 +20,9 @@ func NewJWTService(secretKey string, expirationHours int64) *JWTService {
 	}
 }
 
-// GenerateToken membuat token JWT baru untuk ID pengguna
 func (s *JWTService) GenerateToken(userID uuid.UUID) (string, error) {
 	claims := jwt.MapClaims{
-		"sub": userID.String(), // <-- Simpan sebagai string
+		"sub": userID.String(),
 		"exp": time.Now().Add(time.Hour * time.Duration(s.expirationHours)).Unix(),
 		"iat": time.Now().Unix(),
 	}
@@ -34,7 +31,6 @@ func (s *JWTService) GenerateToken(userID uuid.UUID) (string, error) {
 	return token.SignedString([]byte(s.secretKey))
 }
 
-// ValidateToken memvalidasi token dan mengembalikan klaim jika valid
 func (s *JWTService) ValidateToken(tokenString string) (jwt.MapClaims, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {

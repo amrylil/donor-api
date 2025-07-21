@@ -39,3 +39,22 @@ func (r *userRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*entit
 	}
 	return &user, nil
 }
+
+func (r *userRepositoryImpl) UpdateUser(ctx context.Context, user *entity.User) error {
+	return r.db.WithContext(ctx).Save(user).Error
+}
+
+func (r *userRepositoryImpl) SaveDetail(ctx context.Context, userDetail *entity.UserDetail) error {
+	return r.db.WithContext(ctx).Create(userDetail).Error
+}
+
+func (r *userRepositoryImpl) FindDetailByUserID(ctx context.Context, userID uuid.UUID) (entity.UserDetail, error) {
+	var detail entity.UserDetail
+	err := r.db.WithContext(ctx).Where("user_id = ?", userID).First(&detail).Error
+	return detail, err
+}
+
+func (r *userRepositoryImpl) UpdateDetail(ctx context.Context, userDetail entity.UserDetail) (entity.UserDetail, error) {
+	err := r.db.WithContext(ctx).Save(&userDetail).Error
+	return userDetail, err
+}

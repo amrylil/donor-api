@@ -1,23 +1,13 @@
 package handler
 
 import (
+	"donor-api/internal/delivery/http/dto"
+	"donor-api/internal/delivery/http/helper"
 	"donor-api/internal/usecase"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
-
-// DTO untuk request body
-type RegisterRequest struct {
-	Name     string `json:"name" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=8"`
-}
-
-type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required"`
-}
 
 type AuthHandler struct {
 	authUsecase usecase.AuthUsecase
@@ -28,33 +18,33 @@ func NewAuthHandler(authUsecase usecase.AuthUsecase) *AuthHandler {
 }
 
 func (h *AuthHandler) Register(c *gin.Context) {
-	var req RegisterRequest
+	var req dto.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helper.SendErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	user, err := h.authUsecase.Register(c.Request.Context(), req.Name, req.Email, req.Password)
+	user, err := h.authUsecase.Register(c.Request.Context(), req)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		helper.SendErrorResponse(c, http.StatusNonAuthoritativeInfo, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{"message": "Registration successful", "user": user})
+	helper.SendSuccessResponse(c, http.StatusCreated, "User created successfully", user)
+
 }
 
 func (h *AuthHandler) Login(c *gin.Context) {
-	var req LoginRequest
+	var req dto.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		helper.SendErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	token, err := h.authUsecase.Login(c.Request.Context(), req.Email, req.Password)
+	res, err := h.authUsecase.Login(c.Request.Context(), req)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		helper.SendErrorResponse(c, http.StatusNonAuthoritativeInfo, err.Error())
 		return
 	}
+	helper.SendSuccessResponse(c, http.StatusCreated, "User created successfully", res)
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
 }

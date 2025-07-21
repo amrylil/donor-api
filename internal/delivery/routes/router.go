@@ -24,6 +24,9 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 	authHandler := handler.NewAuthHandler(authUsecase)
 	authMiddleware := middleware.AuthMiddleware(jwtService)
 
+	userUsecase := usecase.NewUserUsecase(userRepo)
+	profileHanlder := handler.NewProfileHandler(userUsecase)
+
 	router := gin.Default()
 
 	// Buat grup utama untuk API
@@ -31,6 +34,7 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 	{
 		// Panggil fungsi inisialisasi untuk setiap fitur
 		InitAuthRoutes(apiV1, authHandler, authMiddleware)
+		InitProfileRoutes(apiV1, profileHanlder, authMiddleware)
 	}
 
 	return router
