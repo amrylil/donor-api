@@ -1,10 +1,12 @@
 #!/bin/bash
 
+# Hentikan script jika ada error
 set -e
 
+# 1. Periksa apakah nama fitur diberikan
 if [ -z "$1" ]; then
   echo "❌ Error: Nama fitur wajib diisi."
-  echo "   Contoh: ./generate.sh product"
+  echo "   Contoh: ./generate_crud.sh product"
   exit 1
 fi
 
@@ -234,7 +236,7 @@ EOF
 echo "✅ Dibuat: ${PERSISTENCE_PATH}/${FEATURE_NAME_LOWER}_repository_impl.go"
 
 
-# 8. Buat Usecase
+# 8. Buat Usecase (Menggunakan Copier)
 cat <<EOF > ./${USECASE_PATH}/${FEATURE_NAME_LOWER}_usecase.go
 package usecase
 
@@ -245,6 +247,7 @@ import (
 	"donor-api/internal/repository"
 
 	"github.com/google/uuid"
+	"github.com/jinzhu/copier"
 )
 
 // --- Interface ---
@@ -266,11 +269,11 @@ func New${FEATURE_NAME_PASCAL}Usecase(repo repository.${FEATURE_NAME_PASCAL}Repo
 }
 
 func (uc *${FEATURE_NAME_LOWER}UsecaseImpl) Create(ctx context.Context, req dto.${FEATURE_NAME_PASCAL}Request) (entity.${FEATURE_NAME_PASCAL}, error) {
-	${FEATURE_NAME_LOWER} := &entity.${FEATURE_NAME_PASCAL}{
-		Title:  req.Title,
-	}
-	err := uc.repo.Save(ctx, ${FEATURE_NAME_LOWER})
-	return *${FEATURE_NAME_LOWER}, err
+	var ${FEATURE_NAME_LOWER} entity.${FEATURE_NAME_PASCAL}
+	copier.Copy(&${FEATURE_NAME_LOWER}, &req)
+
+	err := uc.repo.Save(ctx, &${FEATURE_NAME_LOWER})
+	return ${FEATURE_NAME_LOWER}, err
 }
 
 func (uc *${FEATURE_NAME_LOWER}UsecaseImpl) FindAll(ctx context.Context, page, limit int) ([]entity.${FEATURE_NAME_PASCAL}, int64, error) {
@@ -288,7 +291,8 @@ func (uc *${FEATURE_NAME_LOWER}UsecaseImpl) Update(ctx context.Context, id uuid.
 		return entity.${FEATURE_NAME_PASCAL}{}, err
 	}
 
-	${FEATURE_NAME_LOWER}.Title = req.Title
+	copier.Copy(&${FEATURE_NAME_LOWER}, &req)
+
 	return uc.repo.Update(ctx, ${FEATURE_NAME_LOWER})
 }
 
@@ -303,7 +307,7 @@ EOF
 echo "✅ Dibuat: ${USECASE_PATH}/${FEATURE_NAME_LOWER}.go"
 
 
-# 9. Buat Handler (Menggunakan Helper Response)
+# 9. Buat Handler (Menggunakan Copier)
 cat <<EOF > ./${HANDLER_PATH}/${FEATURE_NAME_LOWER}_handler.go
 package handler
 
@@ -316,6 +320,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/jinzhu/copier"
 )
 
 type ${FEATURE_NAME_PASCAL}Handler struct {
@@ -339,12 +344,10 @@ func (h *${FEATURE_NAME_PASCAL}Handler) Create(c *gin.Context) {
 		return
 	}
 
-	res := dto.${FEATURE_NAME_PASCAL}Response{
-		ID:        result.ID.String(),
-		Title:     result.Title,
-		CreatedAt: result.CreatedAt,
-		UpdatedAt: result.UpdatedAt,
-	}
+	var res dto.${FEATURE_NAME_PASCAL}Response
+	copier.Copy(&res, &result)
+	res.ID = result.ID.String()
+
 	helper.SendSuccessResponse(c, http.StatusCreated, "${FEATURE_NAME_PASCAL} created successfully", res)
 }
 
@@ -359,13 +362,11 @@ func (h *${FEATURE_NAME_PASCAL}Handler) GetAll(c *gin.Context) {
 	}
 
 	var itemResponses []dto.${FEATURE_NAME_PASCAL}Response
-	for _, item := range items {
-		itemResponses = append(itemResponses, dto.${FEATURE_NAME_PASCAL}Response{
-			ID:        item.ID.String(),
-			Title:     item.Title,
-			CreatedAt: item.CreatedAt,
-			UpdatedAt: item.UpdatedAt,
-		})
+	copier.Copy(&itemResponses, &items)
+
+	// ID perlu di-mapping manual karena tipe berbeda (uuid.UUID -> string)
+	for i := range items {
+		itemResponses[i].ID = items[i].ID.String()
 	}
 
 	paginatedResponse := dto.PaginatedResponse[dto.${FEATURE_NAME_PASCAL}Response]{
@@ -389,12 +390,10 @@ func (h *${FEATURE_NAME_PASCAL}Handler) GetByID(c *gin.Context) {
 		return
 	}
 	
-	res := dto.${FEATURE_NAME_PASCAL}Response{
-		ID:        result.ID.String(),
-		Title:     result.Title,
-		CreatedAt: result.CreatedAt,
-		UpdatedAt: result.UpdatedAt,
-	}
+	var res dto.${FEATURE_NAME_PASCAL}Response
+	copier.Copy(&res, &result)
+	res.ID = result.ID.String()
+
 	helper.SendSuccessResponse(c, http.StatusOK, "Successfully retrieved ${FEATURE_NAME_LOWER}", res)
 }
 
@@ -416,12 +415,10 @@ func (h *${FEATURE_NAME_PASCAL}Handler) Update(c *gin.Context) {
 		return
 	}
 	
-	res := dto.${FEATURE_NAME_PASCAL}Response{
-		ID:        result.ID.String(),
-		Title:     result.Title,
-		CreatedAt: result.CreatedAt,
-		UpdatedAt: result.UpdatedAt,
-	}
+	var res dto.${FEATURE_NAME_PASCAL}Response
+	copier.Copy(&res, &result)
+	res.ID = result.ID.String()
+
 	helper.SendSuccessResponse(c, http.StatusOK, "${FEATURE_NAME_PASCAL} updated successfully", res)
 }
 
@@ -437,7 +434,7 @@ func (h *${FEATURE_NAME_PASCAL}Handler) Delete(c *gin.Context) {
 		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	helper.SendSuccessResponse(c, http.StatusOK, "${FEATURE_NAME_PASCAL} deleted successfully", nil)
+	helper.SendSuccessResponse(c, http.StatusOK, "${FEATURE_NAME_PASCAL} deleted successfully", "")
 }
 EOF
 echo "✅ Dibuat: ${HANDLER_PATH}/${FEATURE_NAME_LOWER}_handler.go"
@@ -473,13 +470,18 @@ echo ""
 echo "🎉 Sukses! Semua file untuk fitur mandiri '${FEATURE_NAME_PASCAL}' telah dibuat."
 echo ""
 echo "⚠️ LANGKAH MANUAL BERIKUTNYA:"
-echo "1.  Tambahkan entity baru ke AutoMigrate di 'cmd/api/main.go':"
+echo "1.  Pastikan library 'copier' sudah terinstal:"
+echo "    \`\`\`sh"
+echo "    go get github.com/jinzhu/copier"
+echo "    \`\`\`"
+echo ""
+echo "2.  Tambahkan entity baru ke AutoMigrate di 'cmd/api/main.go':"
 echo "    \`\`\`go"
 echo "    // Di dalam fungsi main()"
 echo "    err = db.AutoMigrate(&entity.User{}, &entity.${FEATURE_NAME_PASCAL}{})"
 echo "    \`\`\`"
 echo ""
-echo "2.  Daftarkan dependensi & rute baru di 'internal/delivery/routes/router.go':"
+echo "3.  Daftarkan dependensi & rute baru di 'internal/delivery/routes/router.go':"
 echo "    \`\`\`go"
 echo "    // Di dalam NewAPIRoutes(), tambahkan inisialisasi:"
 echo "    ${FEATURE_NAME_LOWER}Repo := persistence.New${FEATURE_NAME_PASCAL}Repository(db)"

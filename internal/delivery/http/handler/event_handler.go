@@ -12,16 +12,16 @@ import (
 	"github.com/jinzhu/copier"
 )
 
-type DonationHandler struct {
-	usecase usecase.DonationUsecase
+type EventHandler struct {
+	usecase usecase.EventUsecase
 }
 
-func NewDonationHandler(usecase usecase.DonationUsecase) *DonationHandler {
-	return &DonationHandler{usecase: usecase}
+func NewEventHandler(usecase usecase.EventUsecase) *EventHandler {
+	return &EventHandler{usecase: usecase}
 }
 
-func (h *DonationHandler) Create(c *gin.Context) {
-	var req dto.CreateDonationRequest
+func (h *EventHandler) Create(c *gin.Context) {
+	var req dto.EventRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		helper.SendErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -33,14 +33,14 @@ func (h *DonationHandler) Create(c *gin.Context) {
 		return
 	}
 
-	var res dto.DonationResponse
+	var res dto.EventResponse
 	copier.Copy(&res, &result)
 	res.ID = result.ID.String()
 
-	helper.SendSuccessResponse(c, http.StatusCreated, "Donation created successfully", res)
+	helper.SendSuccessResponse(c, http.StatusCreated, "Event created successfully", res)
 }
 
-func (h *DonationHandler) GetAll(c *gin.Context) {
+func (h *EventHandler) GetAll(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
@@ -50,7 +50,7 @@ func (h *DonationHandler) GetAll(c *gin.Context) {
 		return
 	}
 
-	var itemResponses []dto.DonationResponse
+	var itemResponses []dto.EventResponse
 	copier.Copy(&itemResponses, &items)
 
 	// ID perlu di-mapping manual karena tipe berbeda (uuid.UUID -> string)
@@ -58,16 +58,16 @@ func (h *DonationHandler) GetAll(c *gin.Context) {
 		itemResponses[i].ID = items[i].ID.String()
 	}
 
-	paginatedResponse := dto.PaginatedResponse[dto.DonationResponse]{
+	paginatedResponse := dto.PaginatedResponse[dto.EventResponse]{
 		Data:       itemResponses,
 		TotalItems: total,
 		Page:       page,
 		Limit:      limit,
 	}
-	helper.SendSuccessResponse(c, http.StatusOK, "Successfully retrieved donations", paginatedResponse)
+	helper.SendSuccessResponse(c, http.StatusOK, "Successfully retrieved events", paginatedResponse)
 }
 
-func (h *DonationHandler) GetByID(c *gin.Context) {
+func (h *EventHandler) GetByID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		helper.SendErrorResponse(c, http.StatusBadRequest, "Invalid ID format")
@@ -78,21 +78,21 @@ func (h *DonationHandler) GetByID(c *gin.Context) {
 		helper.SendErrorResponse(c, http.StatusNotFound, "Record not found")
 		return
 	}
-
-	var res dto.DonationResponse
+	
+	var res dto.EventResponse
 	copier.Copy(&res, &result)
 	res.ID = result.ID.String()
 
-	helper.SendSuccessResponse(c, http.StatusOK, "Successfully retrieved donation", res)
+	helper.SendSuccessResponse(c, http.StatusOK, "Successfully retrieved event", res)
 }
 
-func (h *DonationHandler) Update(c *gin.Context) {
+func (h *EventHandler) Update(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		helper.SendErrorResponse(c, http.StatusBadRequest, "Invalid ID format")
 		return
 	}
-	var req dto.UpdateDonationRequest
+	var req dto.EventRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		helper.SendErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -103,15 +103,15 @@ func (h *DonationHandler) Update(c *gin.Context) {
 		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	var res dto.DonationResponse
+	
+	var res dto.EventResponse
 	copier.Copy(&res, &result)
 	res.ID = result.ID.String()
 
-	helper.SendSuccessResponse(c, http.StatusOK, "Donation updated successfully", res)
+	helper.SendSuccessResponse(c, http.StatusOK, "Event updated successfully", res)
 }
 
-func (h *DonationHandler) Delete(c *gin.Context) {
+func (h *EventHandler) Delete(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		helper.SendErrorResponse(c, http.StatusBadRequest, "Invalid ID format")
@@ -123,5 +123,5 @@ func (h *DonationHandler) Delete(c *gin.Context) {
 		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	helper.SendSuccessResponse(c, http.StatusOK, "Donation deleted successfully", "")
+	helper.SendSuccessResponse(c, http.StatusOK, "Event deleted successfully", "")
 }

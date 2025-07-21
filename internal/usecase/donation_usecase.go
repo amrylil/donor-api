@@ -7,14 +7,15 @@ import (
 	"donor-api/internal/repository"
 
 	"github.com/google/uuid"
+	"github.com/jinzhu/copier"
 )
 
 // --- Interface ---
 type DonationUsecase interface {
-	Create(ctx context.Context, req dto.DonationRequest) (entity.Donation, error)
+	Create(ctx context.Context, req dto.CreateDonationRequest) (entity.Donation, error)
 	FindAll(ctx context.Context, page, limit int) ([]entity.Donation, int64, error)
 	FindByID(ctx context.Context, id uuid.UUID) (entity.Donation, error)
-	Update(ctx context.Context, id uuid.UUID, req dto.DonationRequest) (entity.Donation, error)
+	Update(ctx context.Context, id uuid.UUID, req dto.UpdateDonationRequest) (entity.Donation, error)
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
@@ -27,12 +28,12 @@ func NewDonationUsecase(repo repository.DonationRepository) DonationUsecase {
 	return &donationUsecaseImpl{repo: repo}
 }
 
-func (uc *donationUsecaseImpl) Create(ctx context.Context, req dto.DonationRequest) (entity.Donation, error) {
-	donation := &entity.Donation{
-		Title:  req.Title,
-	}
-	err := uc.repo.Save(ctx, donation)
-	return *donation, err
+func (uc *donationUsecaseImpl) Create(ctx context.Context, req dto.CreateDonationRequest) (entity.Donation, error) {
+	var donation entity.Donation
+	copier.Copy(&donation, &req)
+
+	err := uc.repo.Save(ctx, &donation)
+	return donation, err
 }
 
 func (uc *donationUsecaseImpl) FindAll(ctx context.Context, page, limit int) ([]entity.Donation, int64, error) {
@@ -44,13 +45,14 @@ func (uc *donationUsecaseImpl) FindByID(ctx context.Context, id uuid.UUID) (enti
 	return uc.repo.FindByID(ctx, id)
 }
 
-func (uc *donationUsecaseImpl) Update(ctx context.Context, id uuid.UUID, req dto.DonationRequest) (entity.Donation, error) {
+func (uc *donationUsecaseImpl) Update(ctx context.Context, id uuid.UUID, req dto.UpdateDonationRequest) (entity.Donation, error) {
 	donation, err := uc.repo.FindByID(ctx, id)
 	if err != nil {
 		return entity.Donation{}, err
 	}
 
-	donation.Title = req.Title
+	copier.Copy(&donation, &req)
+
 	return uc.repo.Update(ctx, donation)
 }
 

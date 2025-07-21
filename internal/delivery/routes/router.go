@@ -35,6 +35,7 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 		// Panggil fungsi inisialisasi untuk setiap fitur
 		InitAuthRoutes(apiV1, authHandler, authMiddleware)
 		InitProfileRoutes(apiV1, profileHanlder, authMiddleware)
+
 	}
 
 	return router
