@@ -27,14 +27,28 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 	userUsecase := usecase.NewUserUsecase(userRepo)
 	profileHanlder := handler.NewProfileHandler(userUsecase)
 
+	donationRepo := persistence.NewDonationRepository(db)
+	donationUsecase := usecase.NewDonationUsecase(donationRepo)
+	donationHandler := handler.NewDonationHandler(donationUsecase)
+
+	eventRepo := persistence.NewEventRepository(db)
+	eventUsecase := usecase.NewEventUsecase(eventRepo)
+	eventHandler := handler.NewEventHandler(eventUsecase)
+
+	locationRepo := persistence.NewLocationRepository(db)
+	locationUsecase := usecase.NewLocationUsecase(locationRepo)
+	locationHandler := handler.NewLocationHandler(locationUsecase)
+
 	router := gin.Default()
 
-	// Buat grup utama untuk API
 	apiV1 := router.Group("/api/v1")
 	{
 		// Panggil fungsi inisialisasi untuk setiap fitur
 		InitAuthRoutes(apiV1, authHandler, authMiddleware)
 		InitProfileRoutes(apiV1, profileHanlder, authMiddleware)
+		InitDonationRoutes(apiV1, donationHandler, authMiddleware)
+		InitEventRoutes(apiV1, eventHandler)
+		InitLocationRoutes(apiV1, locationHandler)
 
 	}
 

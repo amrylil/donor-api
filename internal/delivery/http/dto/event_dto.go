@@ -1,16 +1,25 @@
 package dto
 
-import "time"
+import (
+	"time"
 
-// DTO untuk request body (Create & Update)
+	"github.com/google/uuid"
+)
+
 type EventRequest struct {
-	Title string `json:"title" binding:"required"`
+	EventName   string    `json:"event_name" binding:"required"`
+	Description string    `json:"description" binding:"required"`
+	StartDate   time.Time `json:"start_date" binding:"required"`
+	EndDate     time.Time `json:"end_date" binding:"required"`
+	LocationID  uuid.UUID `json:"location_id" binding:"required"`
 }
 
-// DTO untuk response (data aman untuk publik)
 type EventResponse struct {
-	ID        string    `json:"id"`
-	Title     string    `json:"title"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID          string    `json:"id"`
+	EventName   string    `json:"event_name"`
+	Description string    `json:"description"`
+	StartDate   time.Time `json:"start_date"`
+	EndDate     time.Time `json:"end_date"`
+	LocationID  string    `json:"location_id"`
+	CreatedAt   time.Time `json:"created_at"`
 }

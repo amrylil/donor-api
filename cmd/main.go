@@ -21,13 +21,13 @@ func main() {
 	}
 	fmt.Println("✅ Berhasil terhubung ke database!")
 
-	err = db.AutoMigrate(&entity.User{}, &entity.UserDetail{})
+	err = db.AutoMigrate(&entity.User{}, &entity.UserDetail{}, &entity.Donation{}, &entity.Event{}, &entity.Stock{}, &entity.Location{})
 	if err != nil {
 		log.Fatalf("❌ Gagal melakukan migrasi database: %v", err)
 	}
 	fmt.Println("✅ Migrasi database berhasil!")
 
 	router := routes.NewAPIRoutes(db)
-	log.Printf("🚀 Server berjalan di http://localhost:8080")
-	router.Run(":8080")
+	log.Printf("🚀 Server berjalan di http://localhost:8000")
+	router.Run(":8000")
 }
