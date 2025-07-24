@@ -1,11 +1,6 @@
-# docker-compose.yml (VERSI UNTUK DI VPS)
-
-version: "3.8"
-
 services:
-  # Layanan untuk Database PostgreSQL
   db:
-    image: postgres:14-alpine
+    image: postgres:14
     container_name: donor_db
     restart: unless-stopped
     environment:
@@ -14,10 +9,13 @@ services:
       POSTGRES_DB: ${DB_NAME}
     volumes:
       - db_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
-  # Layanan untuk Aplikasi Go Anda
   app:
     image: ulilamry/donor-api:latest
     container_name: donor_api_app
@@ -31,7 +29,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:
