@@ -9,6 +9,8 @@ RUN go mod download
 # Salin sisa kode sumber proyek Anda
 COPY . .
 
+RUN apt-get update && apt-get install -y tzdata
+
 # Compile aplikasi Go menjadi satu file program (binary)
 # Ini adalah langkah inti dari tahap builder
 RUN CGO_ENABLED=0 GOOS=linux go build -a -o /app/main ./cmd/main.go
