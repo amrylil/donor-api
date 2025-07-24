@@ -1,0 +1,38 @@
+# docker-compose.yml (VERSI UNTUK DI VPS)
+
+version: "3.8"
+
+services:
+  # Layanan untuk Database PostgreSQL
+  db:
+    image: postgres:14-alpine
+    container_name: donor_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Layanan untuk Aplikasi Go Anda
+  app:
+    image: ulilamry/donor-api:latest
+    container_name: donor_api_app
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+    depends_on:
+      - db
+
+# Deklarasi Volume untuk menyimpan data database secara permanen
+volumes:
+  db_data:

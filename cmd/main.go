@@ -28,6 +28,7 @@ func main() {
 	fmt.Println("✅ Migrasi database berhasil!")
 
 	router := routes.NewAPIRoutes(db)
+
 	log.Printf("🚀 Server berjalan di http://localhost:8000")
-	router.Run(":8000")
+	router.Run(":8080")
 }

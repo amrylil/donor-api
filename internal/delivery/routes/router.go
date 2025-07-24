@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -39,17 +40,30 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 	locationUsecase := usecase.NewLocationUsecase(locationRepo)
 	locationHandler := handler.NewLocationHandler(locationUsecase)
 
+	// Inisialisasi router
 	router := gin.Default()
 
+	// Tambahkan CORS middleware DI SINI
+	router.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		AllowCredentials: false,
+	}))
+
+	// Optional: tangani preflight request
+	router.OPTIONS("/*cors", func(c *gin.Context) {
+		c.AbortWithStatus(204)
+	})
+
+	// Group route
 	apiV1 := router.Group("/api/v1")
 	{
-		// Panggil fungsi inisialisasi untuk setiap fitur
 		InitAuthRoutes(apiV1, authHandler, authMiddleware)
 		InitProfileRoutes(apiV1, profileHanlder, authMiddleware)
 		InitDonationRoutes(apiV1, donationHandler, authMiddleware)
 		InitEventRoutes(apiV1, eventHandler)
 		InitLocationRoutes(apiV1, locationHandler)
-
 	}
 
 	return router

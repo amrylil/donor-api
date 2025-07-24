@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"donor-api/internal/delivery/http/dto"
+	"donor-api/internal/delivery/http/helper"
 	"donor-api/internal/entity"
 	"donor-api/internal/repository"
 
@@ -17,6 +18,7 @@ type LocationUsecase interface {
 	FindByID(ctx context.Context, id uuid.UUID) (entity.Location, error)
 	Update(ctx context.Context, id uuid.UUID, req dto.LocationRequest) (entity.Location, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+	GetAllByUserLocation(ctx context.Context, lat float64, lon float64) ([]dto.LocationByUserResponse, error)
 }
 
 // --- Implementation ---
@@ -62,4 +64,25 @@ func (uc *locationUsecaseImpl) Delete(ctx context.Context, id uuid.UUID) error {
 		return err
 	}
 	return uc.repo.Delete(ctx, id)
+}
+
+func (uc *locationUsecaseImpl) GetAllByUserLocation(ctx context.Context, lat float64, lon float64) ([]dto.LocationByUserResponse, error) {
+	locations, _, err := uc.repo.FindAll(ctx, 1000, 0) // Ambil semua lokasi
+	if err != nil {
+		return nil, err
+	}
+
+	var responses []dto.LocationByUserResponse
+	for _, loc := range locations {
+		distance := helper.Haversine(lat, lon, *loc.Latitude, *loc.Longitude)
+		responses = append(responses, dto.LocationByUserResponse{
+			Name:     loc.LocationName,
+			Address:  loc.Address,
+			Lat:      *loc.Latitude,
+			Lon:      *loc.Longitude,
+			Distance: distance,
+		})
+	}
+
+	return responses, nil
 }

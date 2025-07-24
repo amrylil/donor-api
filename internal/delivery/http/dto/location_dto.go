@@ -19,3 +19,11 @@ type LocationResponse struct {
 	Longitude    *float64  `json:"longitude,omitempty"`
 	CreatedAt    time.Time `json:"created_at"`
 }
+
+type LocationByUserResponse struct {
+	Name     string  `json:"name"`
+	Address  string  `json:"address"`
+	Lat      float64 `json:"lat"`
+	Lon      float64 `json:"lon"`
+	Distance float64 `json:"distance"`
+}

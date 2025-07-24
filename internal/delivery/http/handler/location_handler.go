@@ -78,7 +78,7 @@ func (h *LocationHandler) GetByID(c *gin.Context) {
 		helper.SendErrorResponse(c, http.StatusNotFound, "Record not found")
 		return
 	}
-	
+
 	var res dto.LocationResponse
 	copier.Copy(&res, &result)
 	res.ID = result.ID.String()
@@ -103,7 +103,7 @@ func (h *LocationHandler) Update(c *gin.Context) {
 		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	
+
 	var res dto.LocationResponse
 	copier.Copy(&res, &result)
 	res.ID = result.ID.String()
@@ -124,4 +124,28 @@ func (h *LocationHandler) Delete(c *gin.Context) {
 		return
 	}
 	helper.SendSuccessResponse(c, http.StatusOK, "Location deleted successfully", "")
+}
+
+func (h *LocationHandler) GetAllByUserLocation(c *gin.Context) {
+	latStr := c.Query("lat")
+	lonStr := c.Query("lon")
+
+	userLat, errLat := strconv.ParseFloat(latStr, 64)
+	userLon, errLon := strconv.ParseFloat(lonStr, 64)
+
+	if errLat != nil || errLon != nil {
+		helper.SendErrorResponse(c, http.StatusBadRequest, "Invalid latitude or longitude format")
+		return
+	}
+
+	sortedLocations, err := h.usecase.GetAllByUserLocation(c.Request.Context(), userLat, userLon)
+
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
+
+		return
+	}
+
+	helper.SendSuccessResponse(c, http.StatusOK, "Location deleted successfully", sortedLocations)
+
 }

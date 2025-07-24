@@ -1,31 +1,30 @@
-FROM golang:1.22-alpine AS builder
+FROM golang:1.21-alpine AS builder
 
-# Menetapkan direktori kerja di dalam container.
 WORKDIR /app
 
-# `go mod download` hanya akan berjalan lagi jika file go.mod/go.sum berubah.
+# Salin file dependensi dulu untuk optimasi cache
 COPY go.mod go.sum ./
 RUN go mod download
 
+# Salin sisa kode sumber proyek Anda
 COPY . .
 
-# Hasilnya adalah sebuah file bernama 'main' di dalam folder /app.
-RUN CGO_ENABLED=0 GOOS=linux go build -v -o /app/main .
+# Compile aplikasi Go menjadi satu file program (binary)
+# Ini adalah langkah inti dari tahap builder
+RUN CGO_ENABLED=0 GOOS=linux go build -a -o /app/main ./cmd/main.go
 
 
-# Memulai dari image Alpine Linux yang sangat kecil untuk produksi.
+# --- TAHAP 2: FINAL (Image Akhir yang Super Ramping) ---
+# Kita mulai dari image kosong Alpine Linux yang sangat kecil
 FROM alpine:latest
 
-# Menetapkan direktori kerja di dalam image akhir.
-WORKDIR /root/
+WORKDIR /app
 
-# Menyalin HANYA file binary yang sudah di-compile dari tahap 'builder'.
-# Ini membuat image akhir sangat kecil dan aman.
+# Salin HANYA file program yang sudah jadi dari tahap builder
 COPY --from=builder /app/main .
 
-# Memberi tahu Docker bahwa container akan mendengarkan pada port 10000.
-# Platform seperti Render akan menggunakan informasi ini.
-EXPOSE 10000
+# Beri tahu Docker port berapa yang digunakan aplikasi ini
+EXPOSE 8080 # Ganti jika port aplikasi Anda berbeda
 
-# Perintah default untuk menjalankan aplikasi Anda saat container dimulai.
-CMD ["./main"]
+# Perintah untuk menjalankan aplikasi saat container dimulai
+ENTRYPOINT ["/app/main"]
