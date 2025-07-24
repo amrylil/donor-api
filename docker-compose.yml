@@ -33,6 +33,5 @@ services:
     depends_on:
       - db
 
-# Deklarasi Volume untuk menyimpan data database secara permanen
 volumes:
   db_data:

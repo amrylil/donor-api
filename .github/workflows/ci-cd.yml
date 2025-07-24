@@ -53,7 +53,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             # Masuk ke direktori proyek di VPS
-            cd /lokasi/proyek/anda 
+            cd /home/ubuntu/donor-api 
 
             # Buat file .env dari secret
             echo "${{ secrets.ENV_FILE }}" > .env
