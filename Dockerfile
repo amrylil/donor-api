@@ -24,7 +24,7 @@ WORKDIR /app
 COPY --from=builder /app/main .
 
 # Beri tahu Docker port berapa yang digunakan aplikasi ini
-EXPOSE 8080 # Ganti jika port aplikasi Anda berbeda
+EXPOSE 8080
 
 # Perintah untuk menjalankan aplikasi saat container dimulai
 ENTRYPOINT ["/app/main"]
