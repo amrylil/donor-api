@@ -2,6 +2,7 @@ package routes
 
 import (
 	"donor-api/internal/delivery/http/handler"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,5 +17,6 @@ func InitLocationRoutes(
 		locationsRoutes.GET("/:id", handler.GetByID)
 		locationsRoutes.PUT("/:id", handler.Update)
 		locationsRoutes.DELETE("/:id", handler.Delete)
+		locationsRoutes.GET("/by-user-location", handler.GetAllByUserLocation)
 	}
 }

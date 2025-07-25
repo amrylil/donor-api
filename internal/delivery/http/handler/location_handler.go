@@ -146,6 +146,6 @@ func (h *LocationHandler) GetAllByUserLocation(c *gin.Context) {
 		return
 	}
 
-	helper.SendSuccessResponse(c, http.StatusOK, "Location deleted successfully", sortedLocations)
+	helper.SendSuccessResponse(c, http.StatusOK, "Successfully retrieved locations", sortedLocations)
 
 }
