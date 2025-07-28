@@ -7,6 +7,9 @@ import (
 	"donor-api/internal/infrastructure/security"
 	"donor-api/internal/repository"
 	"errors"
+	"fmt"
+
+	"google.golang.org/api/idtoken"
 
 	"gorm.io/gorm"
 )
@@ -14,22 +17,24 @@ import (
 type AuthUsecase interface {
 	Register(ctx context.Context, req dto.RegisterRequest) (*entity.User, error)
 	Login(ctx context.Context, req dto.LoginRequest) (*dto.LoginResponse, error)
+	AuthenticateWithGoogle(ctx context.Context, idTokenString string) (*dto.LoginResponse, error)
 }
 
 type authUsecaseImpl struct {
-	userRepo   repository.UserRepository
-	jwtService *security.JWTService
+	userRepo    repository.UserRepository
+	jwtService  *security.JWTService
+	webClientID string
 }
 
 // NewAuthUsecase membuat implementasi baru untuk AuthUsecase
-func NewAuthUsecase(userRepo repository.UserRepository, jwtService *security.JWTService) AuthUsecase {
+func NewAuthUsecase(userRepo repository.UserRepository, jwtService *security.JWTService, webClientID string) AuthUsecase {
 	return &authUsecaseImpl{
-		userRepo:   userRepo,
-		jwtService: jwtService,
+		userRepo:    userRepo,
+		jwtService:  jwtService,
+		webClientID: webClientID,
 	}
 }
 
-// --- PERBAIKAN DI FUNGSI REGISTER ---
 func (u *authUsecaseImpl) Register(ctx context.Context, req dto.RegisterRequest) (*entity.User, error) {
 	_, err := u.userRepo.FindByEmail(ctx, req.Email)
 	if err == nil {
@@ -66,6 +71,58 @@ func (u *authUsecaseImpl) Login(ctx context.Context, req dto.LoginRequest) (*dto
 
 	if !security.CheckPasswordHash(req.Password, user.Password) {
 		return nil, errors.New("invalid credentials")
+	}
+
+	token, err := u.jwtService.GenerateToken(user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	userResponse := dto.UserResponse{
+		ID:    user.ID.String(),
+		Name:  user.Name,
+		Email: user.Email,
+		Role:  user.Role,
+	}
+
+	result := &dto.LoginResponse{
+		Token: token,
+		User:  userResponse,
+	}
+
+	return result, nil
+}
+
+func (u *authUsecaseImpl) AuthenticateWithGoogle(ctx context.Context, idTokenString string) (*dto.LoginResponse, error) {
+	payload, err := idtoken.Validate(ctx, idTokenString, u.webClientID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid id token: %w", err)
+	}
+
+	email := payload.Claims["email"].(string)
+	name := payload.Claims["name"].(string)
+	fmt.Printf("Verifikasi Google berhasil untuk: %s (%s)\n", name, email)
+
+	user, err := u.userRepo.FindByEmail(ctx, email)
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, fmt.Errorf("gagal mencari pengguna: %w", err)
+		}
+
+		fmt.Printf("Pengguna tidak ditemukan, membuat akun baru via Google...\n")
+
+		newUser := &entity.User{
+			Name:  name,
+			Email: email,
+			Role:  "donor",
+		}
+		if err := u.userRepo.Save(ctx, newUser); err != nil {
+			return nil, fmt.Errorf("gagal membuat user: %w", err)
+		}
+
+		user = newUser
+	} else {
+		fmt.Printf("Pengguna ditemukan di sistem: %s\n", user.Email)
 	}
 
 	token, err := u.jwtService.GenerateToken(user.ID)

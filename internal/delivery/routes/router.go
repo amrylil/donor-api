@@ -17,11 +17,12 @@ import (
 func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 	jwtSecret := os.Getenv("JWT_SECRET_KEY")
 	jwtExpHoursStr := os.Getenv("JWT_EXPIRATION_IN_HOURS")
+	webClientID := os.Getenv("WEB_CLIENT_ID")
 	jwtExpHours, _ := strconv.ParseInt(jwtExpHoursStr, 10, 64)
 
 	userRepo := persistence.NewUserRepository(db)
 	jwtService := security.NewJWTService(jwtSecret, jwtExpHours)
-	authUsecase := usecase.NewAuthUsecase(userRepo, jwtService)
+	authUsecase := usecase.NewAuthUsecase(userRepo, jwtService, webClientID)
 	authHandler := handler.NewAuthHandler(authUsecase)
 	authMiddleware := middleware.AuthMiddleware(jwtService)
 

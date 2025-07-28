@@ -48,3 +48,17 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusCreated, "User created successfully", res)
 
 }
+func (h *AuthHandler) GoogleAuth(c *gin.Context) {
+	idtoken, err := helper.GetBearerToken(c)
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusBadRequest, "Invalid token")
+		return
+	}
+	res, err := h.authUsecase.AuthenticateWithGoogle(c.Request.Context(), idtoken)
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusNonAuthoritativeInfo, err.Error())
+		return
+	}
+	helper.SendSuccessResponse(c, http.StatusCreated, "User created successfully", res)
+
+}
