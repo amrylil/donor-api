@@ -30,6 +30,9 @@ type UserDetailRequest struct {
 	Rhesus        string    `json:"rhesus" binding:"required,oneof=+ -"`
 	PhoneNumber   string    `json:"phone_number" binding:"required,min=10,max=15"`
 	Address       string    `json:"address" binding:"required"`
+	Latitude      float64   `json:"latitude"`
+	Longitude     float64   `json:"longitude"`
+	Weight        float64   `json:"weight"`
 	IsActiveDonor bool      `json:"is_active_donor" binding:"required"`
 }
 
@@ -45,6 +48,9 @@ type UserDetailResponse struct {
 	PhoneNumber   string    `json:"phone_number"`
 	Address       string    `json:"address"`
 	IsActiveDonor bool      `json:"is_active_donor"`
+	Latitude      float64   `json:"latitude"`
+	Longitude     float64   `json:"longitude"`
+	Weight        float64   `json:"weight"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }

@@ -40,10 +40,13 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 	locationUsecase := usecase.NewLocationUsecase(locationRepo)
 	locationHandler := handler.NewLocationHandler(locationUsecase)
 
+	bloodRequestRepo := persistence.NewBloodRequestRepository(db)
+	bloodRequestUsecase := usecase.NewBloodRequestUsecase(bloodRequestRepo)
+	bloodRequestHandler := handler.NewBloodRequestHandler(bloodRequestUsecase)
+
 	// Inisialisasi router
 	router := gin.Default()
 
-	// Tambahkan CORS middleware DI SINI
 	router.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -64,6 +67,7 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 		InitDonationRoutes(apiV1, donationHandler, authMiddleware)
 		InitEventRoutes(apiV1, eventHandler)
 		InitLocationRoutes(apiV1, locationHandler)
+		InitBloodRequestRoutes(apiV1, bloodRequestHandler)
 	}
 
 	return router

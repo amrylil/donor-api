@@ -29,15 +29,19 @@ type UserDetail struct {
 	User          User      `gorm:"foreignKey:UserID" json:"-"`
 	FullName      string    `gorm:"type:varchar(255)" json:"full_name"`
 	NIK           string    `gorm:"type:varchar(16);unique" json:"nik"`
-	Gender        string    `gorm:"type:varchar(1)" json:"gender"` // L atau P
+	Gender        string    `gorm:"type:varchar(1)" json:"gender"`
 	DateOfBirth   time.Time `gorm:"type:date" json:"date_of_birth"`
-	BloodType     string    `gorm:"type:varchar(2)" json:"blood_type"` // A, B, AB, O
-	Rhesus        string    `gorm:"type:varchar(1)" json:"rhesus"`     // + atau -
+	BloodType     string    `gorm:"type:varchar(2)" json:"blood_type"`
+	Rhesus        string    `gorm:"type:varchar(1)" json:"rhesus"`
 	PhoneNumber   string    `gorm:"type:varchar(20)" json:"phone_number"`
 	Address       string    `gorm:"type:text" json:"address"`
 	IsActiveDonor bool      `gorm:"default:true" json:"is_active_donor"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	Latitude      float64   `gorm:"type:decimal(9,6)" `
+	Longitude     float64   `gorm:"type:decimal(9,6)" `
+	Weight        float64   `gorm:"type:decimal(5,2)" `
+
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func (ud *UserDetail) BeforeCreate(tx *gorm.DB) (err error) {

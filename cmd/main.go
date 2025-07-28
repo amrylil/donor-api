@@ -21,7 +21,7 @@ func main() {
 	}
 	fmt.Println("✅ Berhasil terhubung ke database!")
 
-	err = db.AutoMigrate(&entity.User{}, &entity.UserDetail{}, &entity.Donation{}, &entity.Event{}, &entity.Stock{}, &entity.Location{})
+	err = db.AutoMigrate(&entity.User{}, &entity.UserDetail{}, &entity.Donation{}, &entity.Event{}, &entity.Stock{}, &entity.Location{}, &entity.BloodRequest{})
 	if err != nil {
 		log.Fatalf("❌ Gagal melakukan migrasi database: %v", err)
 	}
