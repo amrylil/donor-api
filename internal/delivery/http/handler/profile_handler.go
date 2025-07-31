@@ -20,6 +20,16 @@ func NewProfileHandler(userUC usecase.UserUsecase) *ProfileHandler {
 	}
 }
 
+// GetProfile godoc
+// @Summary      Get current user's profile
+// @Description  Mengambil profil dasar dan detail dari pengguna yang sedang login
+// @Tags         Profile
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  dto.SuccessWrapper  "Profil berhasil diambil"
+// @Failure      401  {object}  dto.ErrorWrapper    "Tidak terautentikasi"
+// @Failure      404  {object}  dto.ErrorWrapper    "Profil tidak ditemukan"
+// @Router       /profile [get]
 func (h *ProfileHandler) GetProfile(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
@@ -65,6 +75,19 @@ func (h *ProfileHandler) GetProfile(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusOK, "Profile retrieved successfully", profileResponse)
 }
 
+// UpdateProfile godoc
+// @Summary      Update current user's profile
+// @Description  Memperbarui informasi dasar (nama, email) dari pengguna yang sedang login
+// @Tags         Profile
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        body  body      dto.UserRequest     true  "Data Profil yang Diperbarui"
+// @Success      200   {object}  dto.SuccessWrapper  "Profil berhasil diperbarui"
+// @Failure      400   {object}  dto.ErrorWrapper    "Request tidak valid"
+// @Failure      401   {object}  dto.ErrorWrapper    "Tidak terautentikasi"
+// @Failure      500   {object}  dto.ErrorWrapper    "Terjadi kesalahan internal"
+// @Router       /profile [put]
 func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
@@ -96,6 +119,19 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 
 // --- User Detail Handlers ---
 
+// CreateMyDetail godoc
+// @Summary      Create my user detail
+// @Description  Membuat profil detail (NIK, alamat, dll.) untuk pengguna yang sedang login. Hanya bisa dibuat sekali.
+// @Tags         Profile Details
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        body  body      dto.UserDetailRequest  true  "Data Detail Profil"
+// @Success      201   {object}  dto.SuccessWrapper     "Detail profil berhasil dibuat"
+// @Failure      400   {object}  dto.ErrorWrapper       "Request tidak valid"
+// @Failure      401   {object}  dto.ErrorWrapper       "Tidak terautentikasi"
+// @Failure      500   {object}  dto.ErrorWrapper       "Terjadi kesalahan internal"
+// @Router       /profile/details [post]
 func (h *ProfileHandler) CreateMyDetail(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
@@ -117,6 +153,16 @@ func (h *ProfileHandler) CreateMyDetail(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusCreated, "User detail created successfully", result)
 }
 
+// GetMyDetail godoc
+// @Summary      Get my user detail
+// @Description  Mengambil profil detail dari pengguna yang sedang login
+// @Tags         Profile Details
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200  {object}  dto.SuccessWrapper  "Detail profil berhasil diambil"
+// @Failure      401  {object}  dto.ErrorWrapper    "Tidak terautentikasi"
+// @Failure      404  {object}  dto.ErrorWrapper    "Detail profil tidak ditemukan"
+// @Router       /profile/details [get]
 func (h *ProfileHandler) GetMyDetail(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {
@@ -132,6 +178,19 @@ func (h *ProfileHandler) GetMyDetail(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusOK, "User detail retrieved successfully", result)
 }
 
+// UpdateMyDetail godoc
+// @Summary      Update my user detail
+// @Description  Memperbarui profil detail dari pengguna yang sedang login
+// @Tags         Profile Details
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        body  body      dto.UserDetailRequest  true  "Data Detail Profil yang Diperbarui"
+// @Success      200   {object}  dto.SuccessWrapper     "Detail profil berhasil diperbarui"
+// @Failure      400   {object}  dto.ErrorWrapper       "Request tidak valid"
+// @Failure      401   {object}  dto.ErrorWrapper       "Tidak terautentikasi"
+// @Failure      500   {object}  dto.ErrorWrapper       "Terjadi kesalahan internal"
+// @Router       /profile/details [put]
 func (h *ProfileHandler) UpdateMyDetail(c *gin.Context) {
 	userID, exists := c.Get("userID")
 	if !exists {

@@ -20,6 +20,18 @@ func NewDonationHandler(usecase usecase.DonationUsecase) *DonationHandler {
 	return &DonationHandler{usecase: usecase}
 }
 
+// Create godoc
+// @Summary      Create a new donation
+// @Description  Menambahkan data donasi baru ke sistem
+// @Tags         Donations
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        body  body      dto.CreateDonationRequest  true  "Data Donasi Baru"
+// @Success      201   {object}  dto.SuccessWrapper         "Donasi berhasil dibuat"
+// @Failure      400   {object}  dto.ErrorWrapper           "Request tidak valid"
+// @Failure      500   {object}  dto.ErrorWrapper           "Terjadi kesalahan internal"
+// @Router       /donations [post]
 func (h *DonationHandler) Create(c *gin.Context) {
 	var req dto.CreateDonationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -40,6 +52,17 @@ func (h *DonationHandler) Create(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusCreated, "Donation created successfully", res)
 }
 
+// GetAll godoc
+// @Summary      Get all donations
+// @Description  Mengambil daftar semua data donasi dengan paginasi
+// @Tags         Donations
+// @Produce      json
+// @Security     BearerAuth
+// @Param        page   query     int  false  "Nomor halaman"  default(1)
+// @Param        limit  query     int  false  "Jumlah item per halaman"  default(10)
+// @Success      200    {object}  dto.SuccessWrapper  "Berhasil mengambil daftar donasi"
+// @Failure      500    {object}  dto.ErrorWrapper    "Terjadi kesalahan internal"
+// @Router       /donations [get]
 func (h *DonationHandler) GetAll(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
@@ -67,6 +90,17 @@ func (h *DonationHandler) GetAll(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusOK, "Successfully retrieved donations", paginatedResponse)
 }
 
+// GetByID godoc
+// @Summary      Get donation by ID
+// @Description  Mengambil satu data donasi berdasarkan ID
+// @Tags         Donations
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      string  true  "ID Donasi"  format(uuid)
+// @Success      200  {object}  dto.SuccessWrapper  "Berhasil mengambil data donasi"
+// @Failure      400  {object}  dto.ErrorWrapper    "Format ID tidak valid"
+// @Failure      404  {object}  dto.ErrorWrapper    "Data tidak ditemukan"
+// @Router       /donations/{id} [get]
 func (h *DonationHandler) GetByID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -86,6 +120,19 @@ func (h *DonationHandler) GetByID(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusOK, "Successfully retrieved donation", res)
 }
 
+// Update godoc
+// @Summary      Update a donation
+// @Description  Memperbarui data donasi yang sudah ada berdasarkan ID
+// @Tags         Donations
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id    path      string                     true  "ID Donasi"  format(uuid)
+// @Param        body  body      dto.UpdateDonationRequest  true  "Data Donasi yang Diperbarui"
+// @Success      200   {object}  dto.SuccessWrapper         "Donasi berhasil diperbarui"
+// @Failure      400   {object}  dto.ErrorWrapper           "Format ID atau request tidak valid"
+// @Failure      500   {object}  dto.ErrorWrapper           "Terjadi kesalahan internal"
+// @Router       /donations/{id} [put]
 func (h *DonationHandler) Update(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -111,6 +158,17 @@ func (h *DonationHandler) Update(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusOK, "Donation updated successfully", res)
 }
 
+// Delete godoc
+// @Summary      Delete a donation
+// @Description  Menghapus data donasi berdasarkan ID
+// @Tags         Donations
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      string  true  "ID Donasi"  format(uuid)
+// @Success      200  {object}  dto.SuccessWrapper  "Donasi berhasil dihapus"
+// @Failure      400  {object}  dto.ErrorWrapper    "Format ID tidak valid"
+// @Failure      500  {object}  dto.ErrorWrapper    "Terjadi kesalahan internal"
+// @Router       /donations/{id} [delete]
 func (h *DonationHandler) Delete(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {

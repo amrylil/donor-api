@@ -1,5 +1,41 @@
 basePath: /api/v1
 definitions:
+  dto.BloodRequestRequest:
+    properties:
+      blood_type:
+        type: string
+      description:
+        type: string
+      location_id:
+        type: string
+      quantity:
+        type: integer
+    required:
+    - blood_type
+    - description
+    - location_id
+    - quantity
+    type: object
+  dto.CreateDonationRequest:
+    properties:
+      donation_date:
+        type: string
+      event_id:
+        description: Opsional, bisa tidak diisi
+        type: string
+      location_id:
+        type: string
+      status:
+        enum:
+        - selesai
+        - batal
+        - pending
+        type: string
+    required:
+    - donation_date
+    - location_id
+    - status
+    type: object
   dto.ErrorWrapper:
     properties:
       data: {}
@@ -8,6 +44,42 @@ definitions:
         type: string
       success:
         type: boolean
+    type: object
+  dto.EventRequest:
+    properties:
+      description:
+        type: string
+      end_date:
+        type: string
+      event_name:
+        type: string
+      location_id:
+        type: string
+      start_date:
+        type: string
+    required:
+    - description
+    - end_date
+    - event_name
+    - location_id
+    - start_date
+    type: object
+  dto.LocationRequest:
+    properties:
+      address:
+        type: string
+      city:
+        type: string
+      latitude:
+        type: number
+      location_name:
+        type: string
+      longitude:
+        type: number
+    required:
+    - address
+    - city
+    - location_name
     type: object
   dto.LoginRequest:
     properties:
@@ -33,6 +105,31 @@ definitions:
     - name
     - password
     type: object
+  dto.StockRequest:
+    properties:
+      bag_quantity:
+        minimum: 0
+        type: integer
+      blood_type:
+        enum:
+        - A
+        - B
+        - AB
+        - O
+        type: string
+      location_id:
+        type: string
+      rhesus:
+        enum:
+        - +
+        - '-'
+        type: string
+    required:
+    - bag_quantity
+    - blood_type
+    - location_id
+    - rhesus
+    type: object
   dto.SuccessWrapper:
     properties:
       data: {}
@@ -41,6 +138,83 @@ definitions:
         type: string
       success:
         type: boolean
+    type: object
+  dto.UpdateDonationRequest:
+    properties:
+      status:
+        enum:
+        - selesai
+        - batal
+        - pending
+        type: string
+    required:
+    - status
+    type: object
+  dto.UserDetailRequest:
+    properties:
+      address:
+        type: string
+      blood_type:
+        enum:
+        - A
+        - B
+        - AB
+        - O
+        type: string
+      date_of_birth:
+        type: string
+      full_name:
+        type: string
+      gender:
+        enum:
+        - L
+        - P
+        type: string
+      is_active_donor:
+        type: boolean
+      latitude:
+        type: number
+      longitude:
+        type: number
+      nik:
+        type: string
+      phone_number:
+        maxLength: 15
+        minLength: 10
+        type: string
+      rhesus:
+        enum:
+        - +
+        - '-'
+        type: string
+      weight:
+        type: number
+    required:
+    - address
+    - blood_type
+    - date_of_birth
+    - full_name
+    - gender
+    - is_active_donor
+    - nik
+    - phone_number
+    - rhesus
+    type: object
+  dto.UserRequest:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+      role:
+        type: string
+    required:
+    - password
     type: object
 host: donor-darah.duckdns.org
 info:
@@ -130,6 +304,979 @@ paths:
       summary: Register a new user
       tags:
       - Auth
+  /blood-requests:
+    get:
+      description: Mengambil daftar semua permintaan darah dengan paginasi
+      parameters:
+      - default: 1
+        description: Nomor halaman
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Jumlah item per halaman
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar permintaan darah
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get all blood requests
+      tags:
+      - Blood Requests
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan permintaan darah baru ke sistem
+      parameters:
+      - description: Data Permintaan Darah
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.BloodRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Permintaan darah berhasil dibuat
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Create a new blood request
+      tags:
+      - Blood Requests
+  /blood-requests/{id}:
+    delete:
+      description: Menghapus permintaan darah berdasarkan ID
+      parameters:
+      - description: ID Permintaan Darah
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Permintaan darah berhasil dihapus
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Delete a blood request
+      tags:
+      - Blood Requests
+    get:
+      description: Mengambil satu permintaan darah berdasarkan ID
+      parameters:
+      - description: ID Permintaan Darah
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil data permintaan darah
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "404":
+          description: Data tidak ditemukan
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get blood request by ID
+      tags:
+      - Blood Requests
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui permintaan darah yang sudah ada berdasarkan ID
+      parameters:
+      - description: ID Permintaan Darah
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Data Permintaan Darah yang Diperbarui
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.BloodRequestRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Permintaan darah berhasil diperbarui
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID atau request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Update a blood request
+      tags:
+      - Blood Requests
+  /donations:
+    get:
+      description: Mengambil daftar semua data donasi dengan paginasi
+      parameters:
+      - default: 1
+        description: Nomor halaman
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Jumlah item per halaman
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar donasi
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get all donations
+      tags:
+      - Donations
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan data donasi baru ke sistem
+      parameters:
+      - description: Data Donasi Baru
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateDonationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Donasi berhasil dibuat
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Create a new donation
+      tags:
+      - Donations
+  /donations/{id}:
+    delete:
+      description: Menghapus data donasi berdasarkan ID
+      parameters:
+      - description: ID Donasi
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Donasi berhasil dihapus
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Delete a donation
+      tags:
+      - Donations
+    get:
+      description: Mengambil satu data donasi berdasarkan ID
+      parameters:
+      - description: ID Donasi
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil data donasi
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "404":
+          description: Data tidak ditemukan
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get donation by ID
+      tags:
+      - Donations
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui data donasi yang sudah ada berdasarkan ID
+      parameters:
+      - description: ID Donasi
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Data Donasi yang Diperbarui
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateDonationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Donasi berhasil diperbarui
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID atau request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Update a donation
+      tags:
+      - Donations
+  /events:
+    get:
+      description: Mengambil daftar semua acara dengan paginasi
+      parameters:
+      - default: 1
+        description: Nomor halaman
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Jumlah item per halaman
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar acara
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get all events
+      tags:
+      - Events
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan acara (event) baru ke sistem
+      parameters:
+      - description: Data Acara Baru
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EventRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Acara berhasil dibuat
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Create a new event
+      tags:
+      - Events
+  /events/{id}:
+    delete:
+      description: Menghapus acara berdasarkan ID
+      parameters:
+      - description: ID Acara
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Acara berhasil dihapus
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Delete an event
+      tags:
+      - Events
+    get:
+      description: Mengambil satu data acara berdasarkan ID
+      parameters:
+      - description: ID Acara
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil data acara
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "404":
+          description: Data tidak ditemukan
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get event by ID
+      tags:
+      - Events
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui acara yang sudah ada berdasarkan ID
+      parameters:
+      - description: ID Acara
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Data Acara yang Diperbarui
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EventRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Acara berhasil diperbarui
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID atau request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Update an event
+      tags:
+      - Events
+  /locations:
+    get:
+      description: Mengambil daftar semua lokasi dengan paginasi
+      parameters:
+      - default: 1
+        description: Nomor halaman
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Jumlah item per halaman
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar lokasi
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get all locations
+      tags:
+      - Locations
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan data lokasi baru ke sistem
+      parameters:
+      - description: Data Lokasi Baru
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LocationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Lokasi berhasil dibuat
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Create a new location
+      tags:
+      - Locations
+  /locations/{id}:
+    delete:
+      description: Menghapus data lokasi berdasarkan ID
+      parameters:
+      - description: ID Lokasi
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lokasi berhasil dihapus
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Delete a location
+      tags:
+      - Locations
+    get:
+      description: Mengambil satu data lokasi berdasarkan ID
+      parameters:
+      - description: ID Lokasi
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil data lokasi
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "404":
+          description: Data tidak ditemukan
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get location by ID
+      tags:
+      - Locations
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui data lokasi yang sudah ada berdasarkan ID
+      parameters:
+      - description: ID Lokasi
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Data Lokasi yang Diperbarui
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LocationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Lokasi berhasil diperbarui
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID atau request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Update a location
+      tags:
+      - Locations
+  /locations/nearby:
+    get:
+      description: Mengambil daftar lokasi terurut dari yang terdekat berdasarkan
+        latitude dan longitude pengguna
+      parameters:
+      - description: Latitude Pengguna
+        in: query
+        name: lat
+        required: true
+        type: number
+      - description: Longitude Pengguna
+        in: query
+        name: lon
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar lokasi terdekat
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format latitude atau longitude tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get nearby locations
+      tags:
+      - Locations
+  /profile:
+    get:
+      description: Mengambil profil dasar dan detail dari pengguna yang sedang login
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Profil berhasil diambil
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "401":
+          description: Tidak terautentikasi
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "404":
+          description: Profil tidak ditemukan
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get current user's profile
+      tags:
+      - Profile
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui informasi dasar (nama, email) dari pengguna yang sedang
+        login
+      parameters:
+      - description: Data Profil yang Diperbarui
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Profil berhasil diperbarui
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "401":
+          description: Tidak terautentikasi
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Update current user's profile
+      tags:
+      - Profile
+  /profile/details:
+    get:
+      description: Mengambil profil detail dari pengguna yang sedang login
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Detail profil berhasil diambil
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "401":
+          description: Tidak terautentikasi
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "404":
+          description: Detail profil tidak ditemukan
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get my user detail
+      tags:
+      - Profile Details
+    post:
+      consumes:
+      - application/json
+      description: Membuat profil detail (NIK, alamat, dll.) untuk pengguna yang sedang
+        login. Hanya bisa dibuat sekali.
+      parameters:
+      - description: Data Detail Profil
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserDetailRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Detail profil berhasil dibuat
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "401":
+          description: Tidak terautentikasi
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Create my user detail
+      tags:
+      - Profile Details
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui profil detail dari pengguna yang sedang login
+      parameters:
+      - description: Data Detail Profil yang Diperbarui
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserDetailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Detail profil berhasil diperbarui
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "401":
+          description: Tidak terautentikasi
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Update my user detail
+      tags:
+      - Profile Details
+  /stocks:
+    get:
+      description: Mengambil daftar semua stok darah dengan paginasi
+      parameters:
+      - default: 1
+        description: Nomor halaman
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Jumlah item per halaman
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar stok
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get all stocks
+      tags:
+      - Stocks
+    post:
+      consumes:
+      - application/json
+      description: Menambahkan data stok darah baru ke sistem
+      parameters:
+      - description: Data Stok Baru
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.StockRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Stok berhasil dibuat
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Create a new stock
+      tags:
+      - Stocks
+  /stocks/{id}:
+    delete:
+      description: Menghapus data stok darah berdasarkan ID
+      parameters:
+      - description: ID Stok
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Stok berhasil dihapus
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Delete a stock
+      tags:
+      - Stocks
+    get:
+      description: Mengambil satu data stok darah berdasarkan ID
+      parameters:
+      - description: ID Stok
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil data stok
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "404":
+          description: Data tidak ditemukan
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get stock by ID
+      tags:
+      - Stocks
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui data stok darah yang sudah ada berdasarkan ID
+      parameters:
+      - description: ID Stok
+        format: uuid
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Data Stok yang Diperbarui
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.StockRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Stok berhasil diperbarui
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Format ID atau request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Update a stock
+      tags:
+      - Stocks
 securityDefinitions:
   BearerAuth:
     in: header

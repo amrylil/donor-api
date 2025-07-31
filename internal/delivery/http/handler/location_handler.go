@@ -20,6 +20,18 @@ func NewLocationHandler(usecase usecase.LocationUsecase) *LocationHandler {
 	return &LocationHandler{usecase: usecase}
 }
 
+// Create godoc
+// @Summary      Create a new location
+// @Description  Menambahkan data lokasi baru ke sistem
+// @Tags         Locations
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        body  body      dto.LocationRequest  true  "Data Lokasi Baru"
+// @Success      201   {object}  dto.SuccessWrapper   "Lokasi berhasil dibuat"
+// @Failure      400   {object}  dto.ErrorWrapper     "Request tidak valid"
+// @Failure      500   {object}  dto.ErrorWrapper     "Terjadi kesalahan internal"
+// @Router       /locations [post]
 func (h *LocationHandler) Create(c *gin.Context) {
 	var req dto.LocationRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -40,6 +52,17 @@ func (h *LocationHandler) Create(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusCreated, "Location created successfully", res)
 }
 
+// GetAll godoc
+// @Summary      Get all locations
+// @Description  Mengambil daftar semua lokasi dengan paginasi
+// @Tags         Locations
+// @Produce      json
+// @Security     BearerAuth
+// @Param        page   query     int  false  "Nomor halaman"  default(1)
+// @Param        limit  query     int  false  "Jumlah item per halaman"  default(10)
+// @Success      200    {object}  dto.SuccessWrapper  "Berhasil mengambil daftar lokasi"
+// @Failure      500    {object}  dto.ErrorWrapper    "Terjadi kesalahan internal"
+// @Router       /locations [get]
 func (h *LocationHandler) GetAll(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
@@ -67,6 +90,17 @@ func (h *LocationHandler) GetAll(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusOK, "Successfully retrieved locations", paginatedResponse)
 }
 
+// GetByID godoc
+// @Summary      Get location by ID
+// @Description  Mengambil satu data lokasi berdasarkan ID
+// @Tags         Locations
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      string  true  "ID Lokasi"  format(uuid)
+// @Success      200  {object}  dto.SuccessWrapper  "Berhasil mengambil data lokasi"
+// @Failure      400  {object}  dto.ErrorWrapper    "Format ID tidak valid"
+// @Failure      404  {object}  dto.ErrorWrapper    "Data tidak ditemukan"
+// @Router       /locations/{id} [get]
 func (h *LocationHandler) GetByID(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -86,6 +120,19 @@ func (h *LocationHandler) GetByID(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusOK, "Successfully retrieved location", res)
 }
 
+// Update godoc
+// @Summary      Update a location
+// @Description  Memperbarui data lokasi yang sudah ada berdasarkan ID
+// @Tags         Locations
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id    path      string               true  "ID Lokasi"  format(uuid)
+// @Param        body  body      dto.LocationRequest  true  "Data Lokasi yang Diperbarui"
+// @Success      200   {object}  dto.SuccessWrapper   "Lokasi berhasil diperbarui"
+// @Failure      400   {object}  dto.ErrorWrapper     "Format ID atau request tidak valid"
+// @Failure      500   {object}  dto.ErrorWrapper     "Terjadi kesalahan internal"
+// @Router       /locations/{id} [put]
 func (h *LocationHandler) Update(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -111,6 +158,17 @@ func (h *LocationHandler) Update(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusOK, "Location updated successfully", res)
 }
 
+// Delete godoc
+// @Summary      Delete a location
+// @Description  Menghapus data lokasi berdasarkan ID
+// @Tags         Locations
+// @Produce      json
+// @Security     BearerAuth
+// @Param        id   path      string  true  "ID Lokasi"  format(uuid)
+// @Success      200  {object}  dto.SuccessWrapper  "Lokasi berhasil dihapus"
+// @Failure      400  {object}  dto.ErrorWrapper    "Format ID tidak valid"
+// @Failure      500  {object}  dto.ErrorWrapper    "Terjadi kesalahan internal"
+// @Router       /locations/{id} [delete]
 func (h *LocationHandler) Delete(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -126,6 +184,18 @@ func (h *LocationHandler) Delete(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusOK, "Location deleted successfully", "")
 }
 
+// GetAllByUserLocation godoc
+// @Summary      Get nearby locations
+// @Description  Mengambil daftar lokasi terurut dari yang terdekat berdasarkan latitude dan longitude pengguna
+// @Tags         Locations
+// @Produce      json
+// @Security     BearerAuth
+// @Param        lat  query     number  true  "Latitude Pengguna"
+// @Param        lon  query     number  true  "Longitude Pengguna"
+// @Success      200  {object}  dto.SuccessWrapper  "Berhasil mengambil daftar lokasi terdekat"
+// @Failure      400  {object}  dto.ErrorWrapper    "Format latitude atau longitude tidak valid"
+// @Failure      500  {object}  dto.ErrorWrapper    "Terjadi kesalahan internal"
+// @Router       /locations/nearby [get]
 func (h *LocationHandler) GetAllByUserLocation(c *gin.Context) {
 	latStr := c.Query("lat")
 	lonStr := c.Query("lon")
