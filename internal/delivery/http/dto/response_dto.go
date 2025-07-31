@@ -6,3 +6,11 @@ type APIResponse[T any] struct {
 	Data    T      `json:"data,omitempty"`
 	Error   any    `json:"error,omitempty"`
 }
+
+type SuccessWrapper struct {
+	APIResponse[any]
+}
+
+type ErrorWrapper struct {
+	APIResponse[any]
+}

@@ -1,0 +1,207 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Deskripsi singkat tentang API Anda.",
+        "title": "Nama API Anda",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Nama Kontak",
+            "url": "http://www.websitekontak.com",
+            "email": "support@websitekontak.com"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0"
+    },
+    "host": "donor-darah.duckdns.org",
+    "basePath": "/api/v1",
+    "paths": {
+        "/auth/google": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Autentikasi pengguna menggunakan Google ID Token dan mengembalikan token login",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Google Authentication",
+                "responses": {
+                    "200": {
+                        "description": "Autentikasi berhasil, token ada di field 'data'",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SuccessWrapper"
+                        }
+                    },
+                    "400": {
+                        "description": "Token tidak valid atau hilang",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorWrapper"
+                        }
+                    },
+                    "401": {
+                        "description": "Autentikasi Google gagal",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorWrapper"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "User Login",
+                "parameters": [
+                    {
+                        "description": "Kredensial Login",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Login berhasil, token ada di field 'data'",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SuccessWrapper"
+                        }
+                    },
+                    "401": {
+                        "description": "Kredensial tidak valid",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorWrapper"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "Data Registrasi",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User berhasil dibuat, data user ada di field 'data'",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SuccessWrapper"
+                        }
+                    },
+                    "400": {
+                        "description": "Request tidak valid",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorWrapper"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.ErrorWrapper": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {},
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.LoginRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RegisterRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                }
+            }
+        },
+        "dto.SuccessWrapper": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "error": {},
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

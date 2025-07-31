@@ -1,0 +1,138 @@
+basePath: /api/v1
+definitions:
+  dto.ErrorWrapper:
+    properties:
+      data: {}
+      error: {}
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.RegisterRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - name
+    - password
+    type: object
+  dto.SuccessWrapper:
+    properties:
+      data: {}
+      error: {}
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+host: donor-darah.duckdns.org
+info:
+  contact:
+    email: support@websitekontak.com
+    name: Nama Kontak
+    url: http://www.websitekontak.com
+  description: Deskripsi singkat tentang API Anda.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Nama API Anda
+  version: "1.0"
+paths:
+  /auth/google:
+    post:
+      description: Autentikasi pengguna menggunakan Google ID Token dan mengembalikan
+        token login
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Autentikasi berhasil, token ada di field 'data'
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Token tidak valid atau hilang
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "401":
+          description: Autentikasi Google gagal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Google Authentication
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Kredensial Login
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login berhasil, token ada di field 'data'
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "401":
+          description: Kredensial tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      summary: User Login
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Data Registrasi
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User berhasil dibuat, data user ada di field 'data'
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      summary: Register a new user
+      tags:
+      - Auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
