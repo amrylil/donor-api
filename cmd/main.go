@@ -14,14 +14,14 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title           Nama API Anda
+// @title           Donor App API
 // @version         1.0
-// @description     Deskripsi singkat tentang API Anda.
-// @termsOfService  http://swagger.io/terms/
+// @description     API untuk mengelola donor darah, stok darah, dan informasi pendonor dengan autentikasi OAuth.
+// @termsOfService  https://donor-darah.duckdns.org/terms
 
-// @contact.name   Nama Kontak
-// @contact.url    http://www.websitekontak.com
-// @contact.email  support@websitekontak.com
+// @contact.name   Ulil Amry
+// @contact.url    https://donor-darah.duckdns.org
+// @contact.email  support@donor-darah.duckdns.org
 
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
