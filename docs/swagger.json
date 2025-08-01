@@ -1,13 +1,13 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Deskripsi singkat tentang API Anda.",
-        "title": "Nama API Anda",
-        "termsOfService": "http://swagger.io/terms/",
+        "description": "API untuk mengelola donor darah, stok darah, dan informasi pendonor dengan autentikasi OAuth.",
+        "title": "Donor App API",
+        "termsOfService": "https://donor-darah.duckdns.org/terms",
         "contact": {
-            "name": "Nama Kontak",
-            "url": "http://www.websitekontak.com",
-            "email": "support@websitekontak.com"
+            "name": "Ulil Amry",
+            "url": "https://donor-darah.duckdns.org",
+            "email": "support@donor-darah.duckdns.org"
         },
         "license": {
             "name": "Apache 2.0",

@@ -9,11 +9,11 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "termsOfService": "http://swagger.io/terms/",
+        "termsOfService": "https://donor-darah.duckdns.org/terms",
         "contact": {
-            "name": "Nama Kontak",
-            "url": "http://www.websitekontak.com",
-            "email": "support@websitekontak.com"
+            "name": "Ulil Amry",
+            "url": "https://donor-darah.duckdns.org",
+            "email": "support@donor-darah.duckdns.org"
         },
         "license": {
             "name": "Apache 2.0",
@@ -1980,8 +1980,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "donor-darah.duckdns.org",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
-	Title:            "Nama API Anda",
-	Description:      "Deskripsi singkat tentang API Anda.",
+	Title:            "Donor App API",
+	Description:      "API untuk mengelola donor darah, stok darah, dan informasi pendonor dengan autentikasi OAuth.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

@@ -219,15 +219,16 @@ definitions:
 host: donor-darah.duckdns.org
 info:
   contact:
-    email: support@websitekontak.com
-    name: Nama Kontak
-    url: http://www.websitekontak.com
-  description: Deskripsi singkat tentang API Anda.
+    email: support@donor-darah.duckdns.org
+    name: Ulil Amry
+    url: https://donor-darah.duckdns.org
+  description: API untuk mengelola donor darah, stok darah, dan informasi pendonor
+    dengan autentikasi OAuth.
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  termsOfService: http://swagger.io/terms/
-  title: Nama API Anda
+  termsOfService: https://donor-darah.duckdns.org/terms
+  title: Donor App API
   version: "1.0"
 paths:
   /auth/google:
