@@ -33,7 +33,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	user, err := h.authUsecase.Register(c.Request.Context(), req)
+	user, err := h.authUsecase.Register(c.Request.Context(), req, "user")
 	if err != nil {
 		helper.SendErrorResponse(c, http.StatusNonAuthoritativeInfo, err.Error())
 		return
@@ -41,6 +41,59 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 	helper.SendSuccessResponse(c, http.StatusCreated, "User created successfully", user)
 
+}
+
+// Register godoc
+// @Summary      Register a new admin user
+// @Description  Register a new user with admin role
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dto.RegisterRequest  true  "Data Registrasi"
+// @Success      201   {object}  dto.SuccessWrapper   "Admin berhasil dibuat, data user ada di field 'data'"
+// @Failure      400   {object}  dto.ErrorWrapper     "Request tidak valid"
+// @Router       /auth/register [post]
+func (h *AuthHandler) RegisterAdmin(c *gin.Context) {
+	var req dto.RegisterRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		helper.SendErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	user, err := h.authUsecase.Register(c.Request.Context(), req, "admin")
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusNonAuthoritativeInfo, err.Error())
+		return
+	}
+
+	helper.SendSuccessResponse(c, http.StatusCreated, "User created successfully", user)
+
+}
+
+// Register godoc
+// @Summary      Register a new super admin user
+// @Description  Register a new user with super admin role
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        body  body      dto.RegisterRequest  true  "Data Registrasi"
+// @Success      201   {object}  dto.SuccessWrapper   "Super admin berhasil dibuat, data user ada di field 'data'"
+// @Failure      400   {object}  dto.ErrorWrapper     "Request tidak valid"
+// @Router       /auth/register [post]
+func (h *AuthHandler) RegisterSuperAdmin(c *gin.Context) {
+	var req dto.RegisterRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		helper.SendErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	user, err := h.authUsecase.Register(c.Request.Context(), req, "superadmin")
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusNonAuthoritativeInfo, err.Error())
+		return
+	}
+
+	helper.SendSuccessResponse(c, http.StatusCreated, "User created successfully", user)
 }
 
 // Login godoc

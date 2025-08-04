@@ -10,10 +10,11 @@ type UserRequest struct {
 	Role     string `json:"role"`
 }
 type UserResponse struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Role  string `json:"role"`
+	ID         string  `json:"id"`
+	Name       string  `json:"name"`
+	Email      string  `json:"email"`
+	Role       string  `json:"role"`
+	LocationID *string `json:"location_id,omitempty"`
 }
 
 type ProfileResponse struct {

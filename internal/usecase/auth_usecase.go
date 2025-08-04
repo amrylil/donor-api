@@ -9,13 +9,14 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
 	"google.golang.org/api/idtoken"
 
 	"gorm.io/gorm"
 )
 
 type AuthUsecase interface {
-	Register(ctx context.Context, req dto.RegisterRequest) (*entity.User, error)
+	Register(ctx context.Context, req dto.RegisterRequest, role string) (*entity.User, error)
 	Login(ctx context.Context, req dto.LoginRequest) (*dto.LoginResponse, error)
 	AuthenticateWithGoogle(ctx context.Context, idTokenString string) (*dto.LoginResponse, error)
 }
@@ -26,7 +27,6 @@ type authUsecaseImpl struct {
 	webClientID string
 }
 
-// NewAuthUsecase membuat implementasi baru untuk AuthUsecase
 func NewAuthUsecase(userRepo repository.UserRepository, jwtService *security.JWTService, webClientID string) AuthUsecase {
 	return &authUsecaseImpl{
 		userRepo:    userRepo,
@@ -35,7 +35,7 @@ func NewAuthUsecase(userRepo repository.UserRepository, jwtService *security.JWT
 	}
 }
 
-func (u *authUsecaseImpl) Register(ctx context.Context, req dto.RegisterRequest) (*entity.User, error) {
+func (u *authUsecaseImpl) Register(ctx context.Context, req dto.RegisterRequest, role string) (*entity.User, error) {
 	_, err := u.userRepo.FindByEmail(ctx, req.Email)
 	if err == nil {
 		return nil, errors.New("email already exists")
@@ -48,12 +48,21 @@ func (u *authUsecaseImpl) Register(ctx context.Context, req dto.RegisterRequest)
 	if err != nil {
 		return nil, err
 	}
+	var locationID *uuid.UUID
+	if req.LocationID != nil {
+		id, err := uuid.Parse(*req.LocationID)
+		if err != nil {
+			return nil, fmt.Errorf("invalid location id: %w", err)
+		}
+		locationID = &id
+	}
 
 	user := &entity.User{
-		Name:     req.Name,
-		Email:    req.Email,
-		Password: hashedPassword,
-		Role:     "user",
+		Name:       req.Name,
+		Email:      req.Email,
+		Password:   hashedPassword,
+		Role:       role,
+		LocationID: locationID,
 	}
 
 	if err := u.userRepo.Save(ctx, user); err != nil {

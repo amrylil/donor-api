@@ -102,6 +102,7 @@ const docTemplate = `{
         },
         "/auth/register": {
             "post": {
+                "description": "Register a new user with super admin role",
                 "consumes": [
                     "application/json"
                 ],
@@ -111,7 +112,7 @@ const docTemplate = `{
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Register a new user",
+                "summary": "Register a new super admin user",
                 "parameters": [
                     {
                         "description": "Data Registrasi",
@@ -125,7 +126,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "201": {
-                        "description": "User berhasil dibuat, data user ada di field 'data'",
+                        "description": "Super admin berhasil dibuat, data user ada di field 'data'",
                         "schema": {
                             "$ref": "#/definitions/dto.SuccessWrapper"
                         }
@@ -1798,6 +1799,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "email": {
+                    "type": "string"
+                },
+                "location_id": {
                     "type": "string"
                 },
                 "name": {

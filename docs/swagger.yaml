@@ -95,6 +95,8 @@ definitions:
     properties:
       email:
         type: string
+      location_id:
+        type: string
       name:
         type: string
       password:
@@ -284,6 +286,7 @@ paths:
     post:
       consumes:
       - application/json
+      description: Register a new user with super admin role
       parameters:
       - description: Data Registrasi
         in: body
@@ -295,14 +298,14 @@ paths:
       - application/json
       responses:
         "201":
-          description: User berhasil dibuat, data user ada di field 'data'
+          description: Super admin berhasil dibuat, data user ada di field 'data'
           schema:
             $ref: '#/definitions/dto.SuccessWrapper'
         "400":
           description: Request tidak valid
           schema:
             $ref: '#/definitions/dto.ErrorWrapper'
-      summary: Register a new user
+      summary: Register a new super admin user
       tags:
       - Auth
   /blood-requests:
