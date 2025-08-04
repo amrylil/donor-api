@@ -13,7 +13,7 @@ type Event struct {
 	Description string    `gorm:"type:text" json:"description"`
 	StartDate   time.Time `gorm:"type:date" json:"start_date"`
 	EndDate     time.Time `gorm:"type:date" json:"end_date"`
-	LocationID  uuid.UUID `gorm:"type:uuid;not null" json:"location_id"`
+	LocationID  uuid.UUID `gorm:"type:uuid;index" json:"location_id"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

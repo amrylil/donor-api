@@ -9,10 +9,10 @@ import (
 
 type Stock struct {
 	ID          uuid.UUID `gorm:"type:uuid;primary_key;" json:"id"`
-	BloodType   string    `gorm:"type:varchar(2);not null;uniqueIndex:idx_stock_location" json:"blood_type"` // A, B, AB, O
-	Rhesus      string    `gorm:"type:varchar(1);not null;uniqueIndex:idx_stock_location" json:"rhesus"`     // +, -
+	BloodType   string    `gorm:"type:varchar(2);not null;uniqueIndex:idx_stock_location" json:"blood_type"`
+	Rhesus      string    `gorm:"type:varchar(1);not null;uniqueIndex:idx_stock_location" json:"rhesus"`
 	BagQuantity int       `gorm:"not null" json:"bag_quantity"`
-	LocationID  uuid.UUID `gorm:"type:uuid;not null;uniqueIndex:idx_stock_location" json:"location_id"`
+	LocationID  uuid.UUID `gorm:"type:uuid;index" json:"location_id"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }

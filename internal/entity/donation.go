@@ -10,7 +10,7 @@ import (
 type Donation struct {
 	ID           uuid.UUID  `gorm:"type:uuid;primary_key;" json:"id"`
 	UserID       uuid.UUID  `gorm:"type:uuid;not null" json:"user_id"`
-	LocationID   uuid.UUID  `gorm:"type:uuid;not null" json:"location_id"`
+	LocationID   uuid.UUID  `gorm:"type:uuid;index" json:"location_id"`
 	EventID      *uuid.UUID `gorm:"type:uuid" json:"event_id"`
 	DonationDate time.Time  `gorm:"type:date" json:"donation_date"`
 	Status       string     `gorm:"type:varchar(50);default:'pending'" json:"status"` // pending, selesai, batal
