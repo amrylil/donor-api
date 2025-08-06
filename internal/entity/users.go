@@ -13,10 +13,14 @@ type User struct {
 	Role       string         `gorm:"type:varchar(255)" json:"role"`
 	Email      string         `gorm:"type:varchar(255);uniqueIndex" json:"email"`
 	LocationID *uuid.UUID     `gorm:"type:uuid;index" json:"location_id,omitempty"`
+	TenantID   uuid.UUID      `gorm:"type:uuid;not null" json:"tenant_id"`
 	Password   string         `gorm:"type:varchar(255)" json:"-"`
 	CreatedAt  time.Time      `json:"created_at"`
 	UpdatedAt  time.Time      `json:"updated_at"`
 	DeletedAt  gorm.DeletedAt `gorm:"index" json:"-"`
+
+	// Tenant   Tenant    `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+	// Location *Location `gorm:"foreignKey:LocationID" json:"location,omitempty"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {

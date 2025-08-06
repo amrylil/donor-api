@@ -20,11 +20,13 @@ func NewJWTService(secretKey string, expirationHours int64) *JWTService {
 	}
 }
 
-func (s *JWTService) GenerateToken(userID uuid.UUID) (string, error) {
+func (s *JWTService) GenerateToken(userID uuid.UUID, role string, tenantID uuid.UUID) (string, error) {
 	claims := jwt.MapClaims{
-		"sub": userID.String(),
-		"exp": time.Now().Add(time.Hour * time.Duration(s.expirationHours)).Unix(),
-		"iat": time.Now().Unix(),
+		"sub":       userID.String(),
+		"role":      role,
+		"tenant_id": tenantID,
+		"exp":       time.Now().Add(time.Hour * time.Duration(s.expirationHours)).Unix(),
+		"iat":       time.Now().Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

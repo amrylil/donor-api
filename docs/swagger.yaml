@@ -218,7 +218,6 @@ definitions:
     required:
     - password
     type: object
-host: donor-darah.duckdns.org
 info:
   contact:
     email: support@donor-darah.duckdns.org
@@ -330,6 +329,8 @@ paths:
           description: Request tidak valid
           schema:
             $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
       summary: Register a new admin user
       tags:
       - Auth

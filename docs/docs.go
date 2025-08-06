@@ -141,6 +141,11 @@ const docTemplate = `{
         },
         "/auth/register/admin": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Register a new user with admin role",
                 "consumes": [
                     "application/json"
@@ -2060,7 +2065,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "donor-darah.duckdns.org",
+	Host:             "",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Donor App API",

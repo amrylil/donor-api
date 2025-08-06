@@ -34,6 +34,8 @@ func (uc *locationUsecaseImpl) Create(ctx context.Context, req dto.LocationReque
 	var location entity.Location
 	copier.Copy(&location, &req)
 
+	location.Slug = helper.GenerateSlug(req.LocationName)
+
 	err := uc.repo.Save(ctx, &location)
 	return location, err
 }

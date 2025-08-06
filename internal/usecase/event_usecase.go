@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"donor-api/internal/delivery/http/dto"
+	"donor-api/internal/delivery/http/helper"
 	"donor-api/internal/entity"
 	"donor-api/internal/repository"
 
@@ -32,6 +33,7 @@ func (uc *eventUsecaseImpl) Create(ctx context.Context, req dto.EventRequest) (e
 	var event entity.Event
 	copier.Copy(&event, &req)
 
+	event.Slug = helper.GenerateSlug(req.EventName)
 	err := uc.repo.Save(ctx, &event)
 	return event, err
 }

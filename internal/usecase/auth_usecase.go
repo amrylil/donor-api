@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"donor-api/internal/delivery/http/dto" // Hanya di-import untuk LoginResult
+	"donor-api/internal/delivery/http/helper"
 	"donor-api/internal/entity"
 	"donor-api/internal/infrastructure/security"
 	"donor-api/internal/repository"
@@ -23,13 +24,15 @@ type AuthUsecase interface {
 
 type authUsecaseImpl struct {
 	userRepo    repository.UserRepository
+	tenantRepo  repository.TenantRepository
 	jwtService  *security.JWTService
 	webClientID string
 }
 
-func NewAuthUsecase(userRepo repository.UserRepository, jwtService *security.JWTService, webClientID string) AuthUsecase {
+func NewAuthUsecase(userRepo repository.UserRepository, tenantRepo repository.TenantRepository, jwtService *security.JWTService, webClientID string) AuthUsecase {
 	return &authUsecaseImpl{
 		userRepo:    userRepo,
+		tenantRepo:  tenantRepo,
 		jwtService:  jwtService,
 		webClientID: webClientID,
 	}
@@ -57,11 +60,21 @@ func (u *authUsecaseImpl) Register(ctx context.Context, req dto.RegisterRequest,
 		locationID = &id
 	}
 
+	newTenant := &entity.Tenant{
+		Name: req.Name,
+		Slug: helper.GenerateSlug(req.Name),
+	}
+	if err := u.tenantRepo.Save(ctx, newTenant); err != nil {
+		return nil, fmt.Errorf("failed to create tenant: %w", err)
+	}
+	tenantID := &newTenant.ID
+
 	user := &entity.User{
 		Name:       req.Name,
 		Email:      req.Email,
 		Password:   hashedPassword,
 		Role:       role,
+		TenantID:   *tenantID,
 		LocationID: locationID,
 	}
 
@@ -82,7 +95,11 @@ func (u *authUsecaseImpl) Login(ctx context.Context, req dto.LoginRequest) (*dto
 		return nil, errors.New("invalid credentials")
 	}
 
-	token, err := u.jwtService.GenerateToken(user.ID)
+	if err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	token, err := u.jwtService.GenerateToken(user.ID, user.Role, user.TenantID)
 	if err != nil {
 		return nil, err
 	}
@@ -134,7 +151,8 @@ func (u *authUsecaseImpl) AuthenticateWithGoogle(ctx context.Context, idTokenStr
 		fmt.Printf("Pengguna ditemukan di sistem: %s\n", user.Email)
 	}
 
-	token, err := u.jwtService.GenerateToken(user.ID)
+	token, err := u.jwtService.GenerateToken(user.ID, user.Role, user.TenantID)
+
 	if err != nil {
 		return nil, err
 	}

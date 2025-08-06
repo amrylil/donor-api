@@ -15,7 +15,6 @@
         },
         "version": "1.0"
     },
-    "host": "donor-darah.duckdns.org",
     "basePath": "/api/v1",
     "paths": {
         "/auth/google": {
@@ -135,6 +134,11 @@
         },
         "/auth/register/admin": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Register a new user with admin role",
                 "consumes": [
                     "application/json"

@@ -8,7 +8,7 @@ import (
 
 func RequireRoles(allowedRoles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userRole := c.GetString("user_role")
+		userRole := c.GetString("role")
 
 		for _, role := range allowedRoles {
 			if userRole == role {

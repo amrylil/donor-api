@@ -12,11 +12,15 @@ func InitAuthRoutes(
 	authHandler *handler.AuthHandler,
 	authMiddleware gin.HandlerFunc,
 ) {
-	// Buat grup baru khusus untuk '/auth'
 	authRoutes := router.Group("/auth")
 	{
 		authRoutes.POST("/register", authHandler.Register)
-		authRoutes.POST("/register/admin", authHandler.RegisterAdmin, middleware.RequireRoles("super_admin"))
+		authRoutes.POST("/register/admin",
+			authMiddleware,
+			middleware.RequireRoles("superadmin"),
+			authHandler.RegisterAdmin,
+		)
+
 		authRoutes.POST("/register/super-admin", authHandler.RegisterSuperAdmin)
 		authRoutes.POST("/login", authHandler.Login)
 		authRoutes.POST("/google", authHandler.GoogleAuth)

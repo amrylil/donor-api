@@ -20,9 +20,14 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 	webClientID := os.Getenv("WEB_CLIENT_ID")
 	jwtExpHours, _ := strconv.ParseInt(jwtExpHoursStr, 10, 64)
 
-	userRepo := persistence.NewUserRepository(db)
 	jwtService := security.NewJWTService(jwtSecret, jwtExpHours)
-	authUsecase := usecase.NewAuthUsecase(userRepo, jwtService, webClientID)
+
+	tenantRepo := persistence.NewTenantRepository(db)
+	tenantUsecase := usecase.NewTenantUsecase(tenantRepo)
+	tenantHandler := handler.NewTenantHandler(tenantUsecase)
+
+	userRepo := persistence.NewUserRepository(db)
+	authUsecase := usecase.NewAuthUsecase(userRepo, tenantRepo, jwtService, webClientID)
 	authHandler := handler.NewAuthHandler(authUsecase)
 	authMiddleware := middleware.AuthMiddleware(jwtService)
 
@@ -62,6 +67,13 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 
 	// Group route
 	apiV1 := router.Group("/api/v1")
+
+	apiV1.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status":  "ok",
+			"message": "API is running",
+		})
+	})
 	{
 		InitAuthRoutes(apiV1, authHandler, authMiddleware)
 		InitProfileRoutes(apiV1, profileHanlder, authMiddleware)
@@ -69,6 +81,7 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 		InitEventRoutes(apiV1, eventHandler)
 		InitLocationRoutes(apiV1, locationHandler)
 		InitBloodRequestRoutes(apiV1, bloodRequestHandler)
+		InitTenantRoutes(apiV1, tenantHandler)
 	}
 
 	return router

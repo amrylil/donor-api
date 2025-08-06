@@ -10,6 +10,7 @@ import (
 type Event struct {
 	ID          uuid.UUID `gorm:"type:uuid;primary_key;" json:"id"`
 	EventName   string    `gorm:"type:varchar(255);not null" json:"event_name"`
+	Slug        string    `gorm:"uniqueIndex;not null" `
 	Description string    `gorm:"type:text" json:"description"`
 	StartDate   time.Time `gorm:"type:date" json:"start_date"`
 	EndDate     time.Time `gorm:"type:date" json:"end_date"`

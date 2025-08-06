@@ -49,6 +49,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Tags         Auth
 // @Accept       json
 // @Produce      json
+// @Security BearerAuth
 // @Param        body  body      dto.RegisterRequest  true  "Data Registrasi"
 // @Success      201   {object}  dto.SuccessWrapper   "Admin berhasil dibuat, data user ada di field 'data'"
 // @Failure      400   {object}  dto.ErrorWrapper     "Request tidak valid"

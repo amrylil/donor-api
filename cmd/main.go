@@ -26,7 +26,6 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      donor-darah.duckdns.org
 // @BasePath  /api/v1
 
 // @securityDefinitions.apikey BearerAuth
@@ -43,15 +42,17 @@ func main() {
 	}
 	fmt.Println("✅ Berhasil terhubung ke database!")
 
-	err = db.AutoMigrate(&entity.User{}, &entity.UserDetail{}, &entity.Donation{}, &entity.Event{}, &entity.Stock{}, &entity.Location{}, &entity.BloodRequest{})
+	err = db.AutoMigrate(&entity.User{}, &entity.UserDetail{}, &entity.Donation{}, &entity.Event{}, &entity.Stock{}, &entity.Location{}, &entity.BloodRequest{}, &entity.Tenant{})
 	if err != nil {
 		log.Fatalf("❌ Gagal melakukan migrasi database: %v", err)
 	}
 	fmt.Println("✅ Migrasi database berhasil!")
 
 	router := routes.NewAPIRoutes(db)
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	//  swaggerURL := ginSwagger.URL("https://donor-darah.duckdns.org/swagger/doc.json")
+	swaggerURL := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, swaggerURL))
 
-	log.Printf("🚀 Server berjalan di http://localhost:8000")
+	log.Printf("🚀 Server berjalan di http://localhost:8080/api/v1")
 	router.Run(":8080")
 }
