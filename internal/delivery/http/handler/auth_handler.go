@@ -43,7 +43,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 }
 
-// Register godoc
+// Register Admin godoc
 // @Summary      Register a new admin user
 // @Description  Register a new user with admin role
 // @Tags         Auth
@@ -52,7 +52,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Param        body  body      dto.RegisterRequest  true  "Data Registrasi"
 // @Success      201   {object}  dto.SuccessWrapper   "Admin berhasil dibuat, data user ada di field 'data'"
 // @Failure      400   {object}  dto.ErrorWrapper     "Request tidak valid"
-// @Router       /auth/register [post]
+// @Router       /auth/register/admin [post]
 func (h *AuthHandler) RegisterAdmin(c *gin.Context) {
 	var req dto.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -70,7 +70,7 @@ func (h *AuthHandler) RegisterAdmin(c *gin.Context) {
 
 }
 
-// Register godoc
+// Register Super Admin godoc
 // @Summary      Register a new super admin user
 // @Description  Register a new user with super admin role
 // @Tags         Auth
@@ -79,7 +79,7 @@ func (h *AuthHandler) RegisterAdmin(c *gin.Context) {
 // @Param        body  body      dto.RegisterRequest  true  "Data Registrasi"
 // @Success      201   {object}  dto.SuccessWrapper   "Super admin berhasil dibuat, data user ada di field 'data'"
 // @Failure      400   {object}  dto.ErrorWrapper     "Request tidak valid"
-// @Router       /auth/register [post]
+// @Router       /auth/register/super-admin [post]
 func (h *AuthHandler) RegisterSuperAdmin(c *gin.Context) {
 	var req dto.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
