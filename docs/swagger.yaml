@@ -286,6 +286,57 @@ paths:
     post:
       consumes:
       - application/json
+      parameters:
+      - description: Data Registrasi
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User berhasil dibuat, data user ada di field 'data'
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      summary: Register a new user
+      tags:
+      - Auth
+  /auth/register/admin:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user with admin role
+      parameters:
+      - description: Data Registrasi
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Admin berhasil dibuat, data user ada di field 'data'
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      summary: Register a new admin user
+      tags:
+      - Auth
+  /auth/register/super-admin:
+    post:
+      consumes:
+      - application/json
       description: Register a new user with super admin role
       parameters:
       - description: Data Registrasi

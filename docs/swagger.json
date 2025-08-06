@@ -96,6 +96,85 @@
         },
         "/auth/register": {
             "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register a new user",
+                "parameters": [
+                    {
+                        "description": "Data Registrasi",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "User berhasil dibuat, data user ada di field 'data'",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SuccessWrapper"
+                        }
+                    },
+                    "400": {
+                        "description": "Request tidak valid",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorWrapper"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register/admin": {
+            "post": {
+                "description": "Register a new user with admin role",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register a new admin user",
+                "parameters": [
+                    {
+                        "description": "Data Registrasi",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RegisterRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Admin berhasil dibuat, data user ada di field 'data'",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SuccessWrapper"
+                        }
+                    },
+                    "400": {
+                        "description": "Request tidak valid",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorWrapper"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/register/super-admin": {
+            "post": {
                 "description": "Register a new user with super admin role",
                 "consumes": [
                     "application/json"
