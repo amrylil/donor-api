@@ -2,6 +2,7 @@ package routes
 
 import (
 	"donor-api/internal/delivery/http/handler"
+	"donor-api/internal/delivery/http/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,8 +10,10 @@ import (
 func InitLocationRoutes(
 	router *gin.RouterGroup,
 	handler *handler.LocationHandler,
+	authMiddleware gin.HandlerFunc,
 ) {
-	locationsRoutes := router.Group("/locations")
+	locationsRoutes := router.Group("/locations", authMiddleware,
+		middleware.RequireRoles("superadmin", "admin"))
 	{
 		locationsRoutes.POST("", handler.Create)
 		locationsRoutes.GET("", handler.GetAll)

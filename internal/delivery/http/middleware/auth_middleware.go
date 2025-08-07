@@ -56,7 +56,7 @@ func AuthMiddleware(jwtService *security.JWTService) gin.HandlerFunc {
 		if tenantIDStr, ok := claims["tenant_id"].(string); ok && tenantIDStr != "" {
 			tenantID, err = uuid.Parse(tenantIDStr)
 			if err != nil {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid UUID format for location ID"})
+				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid UUID format for tenant ID"})
 				return
 			}
 			c.Set("tenantID", tenantID)

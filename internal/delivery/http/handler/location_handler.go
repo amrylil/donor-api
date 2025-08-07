@@ -39,7 +39,17 @@ func (h *LocationHandler) Create(c *gin.Context) {
 		return
 	}
 
-	result, err := h.usecase.Create(c.Request.Context(), req)
+	tenantIDValue, exists := c.Get("tenantID")
+	if !exists {
+		helper.SendErrorResponse(c, http.StatusUnauthorized, "Tenant ID not found")
+		return
+	}
+	tenantID, ok := tenantIDValue.(uuid.UUID)
+	if !ok {
+		helper.SendErrorResponse(c, http.StatusInternalServerError, "Invalid tenant ID format")
+		return
+	}
+	result, err := h.usecase.Create(c.Request.Context(), req, tenantID)
 	if err != nil {
 		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

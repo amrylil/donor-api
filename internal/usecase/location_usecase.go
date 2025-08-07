@@ -6,6 +6,7 @@ import (
 	"donor-api/internal/delivery/http/helper"
 	"donor-api/internal/entity"
 	"donor-api/internal/repository"
+	"log"
 
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
@@ -13,7 +14,7 @@ import (
 
 // --- Interface ---
 type LocationUsecase interface {
-	Create(ctx context.Context, req dto.LocationRequest) (entity.Location, error)
+	Create(ctx context.Context, req dto.LocationRequest, tenantID uuid.UUID) (*entity.Location, error)
 	FindAll(ctx context.Context, page, limit int) ([]entity.Location, int64, error)
 	FindByID(ctx context.Context, id uuid.UUID) (entity.Location, error)
 	Update(ctx context.Context, id uuid.UUID, req dto.LocationRequest) (entity.Location, error)
@@ -30,13 +31,20 @@ func NewLocationUsecase(repo repository.LocationRepository) LocationUsecase {
 	return &locationUsecaseImpl{repo: repo}
 }
 
-func (uc *locationUsecaseImpl) Create(ctx context.Context, req dto.LocationRequest) (entity.Location, error) {
-	var location entity.Location
+func (uc *locationUsecaseImpl) Create(ctx context.Context, req dto.LocationRequest, tenantID uuid.UUID) (*entity.Location, error) {
+	location := &entity.Location{}
 	copier.Copy(&location, &req)
 
 	location.Slug = helper.GenerateSlug(req.LocationName)
 
-	err := uc.repo.Save(ctx, &location)
+	log.Print("tenantID: ", tenantID)
+
+	location.TenantID = tenantID
+
+	err := uc.repo.Save(ctx, location)
+	if err != nil {
+		return nil, err
+	}
 	return location, err
 }
 

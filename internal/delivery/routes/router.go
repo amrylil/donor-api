@@ -79,7 +79,7 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 		InitProfileRoutes(apiV1, profileHanlder, authMiddleware)
 		InitDonationRoutes(apiV1, donationHandler, authMiddleware)
 		InitEventRoutes(apiV1, eventHandler)
-		InitLocationRoutes(apiV1, locationHandler)
+		InitLocationRoutes(apiV1, locationHandler, authMiddleware)
 		InitBloodRequestRoutes(apiV1, bloodRequestHandler)
 		InitTenantRoutes(apiV1, tenantHandler)
 	}
