@@ -8,11 +8,12 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
 )
 
 type UserUsecase interface {
-	GetProfile(ctx context.Context, userID uuid.UUID) (*entity.User, *entity.UserDetail, error)
+	GetProfile(ctx context.Context, userID uuid.UUID) (*dto.UserResponse, *dto.UserDetailResponse, error)
 	UpdateProfile(ctx context.Context, userID uuid.UUID, req dto.UserRequest) (entity.User, error)
 
 	// user detail
@@ -32,22 +33,31 @@ func NewUserUsecase(userRepo repository.UserRepository) UserUsecase {
 	}
 }
 
-func (uc *userUsecaseImpl) GetProfile(ctx context.Context, userID uuid.UUID) (*entity.User, *entity.UserDetail, error) {
+func (uc *userUsecaseImpl) GetProfile(ctx context.Context, userID uuid.UUID) (*dto.UserResponse, *dto.UserDetailResponse, error) {
+	res := &dto.UserResponse{}
+	resDetails := &dto.UserDetailResponse{}
 	user, err := uc.userRepo.FindByID(ctx, userID)
 	if err != nil {
 		return nil, nil, errors.New("user not found")
 	}
+	if err = copier.Copy(&res, user); err != nil {
+		return nil, nil, err
+	}
 
 	userDetail, err := uc.userRepo.FindDetailByUserID(ctx, userID)
 
+	if err = copier.Copy(&resDetails, userDetail); err != nil {
+		return nil, nil, err
+	}
+
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return user, nil, nil
+			return res, nil, nil
 		}
 		return nil, nil, err
 	}
 
-	return user, &userDetail, nil
+	return res, resDetails, nil
 }
 
 func (uc *userUsecaseImpl) UpdateProfile(ctx context.Context, userID uuid.UUID, req dto.UserRequest) (entity.User, error) {

@@ -31,48 +31,24 @@ func NewProfileHandler(userUC usecase.UserUsecase) *ProfileHandler {
 // @Failure      404  {object}  dto.ErrorWrapper    "Profil tidak ditemukan"
 // @Router       /profile [get]
 func (h *ProfileHandler) GetProfile(c *gin.Context) {
-	userID, exists := c.Get("userID")
-	if !exists {
-		helper.SendErrorResponse(c, http.StatusUnauthorized, "User not authenticated")
+	userID, err := helper.GetContextValue(c, "userID")
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	user, userDetail, err := h.userUsecase.GetProfile(c, userID.(uuid.UUID))
+	user, detail, err := h.userUsecase.GetProfile(c.Request.Context(), *userID)
 	if err != nil {
 		helper.SendErrorResponse(c, http.StatusNotFound, err.Error())
 		return
 	}
 
-	userResponse := dto.UserResponse{
-		ID:    user.ID.String(),
-		Name:  user.Name,
-		Email: user.Email,
-		Role:  user.Role,
+	response := dto.ProfileResponse{
+		User:    *user,
+		Details: detail,
 	}
 
-	profileResponse := dto.ProfileResponse{
-		User: userResponse,
-	}
-
-	if userDetail != nil {
-		profileResponse.Details = &dto.UserDetailResponse{
-			ID:            userDetail.ID.String(),
-			UserID:        userDetail.UserID.String(),
-			FullName:      userDetail.FullName,
-			NIK:           userDetail.NIK,
-			Gender:        userDetail.Gender,
-			DateOfBirth:   userDetail.DateOfBirth,
-			BloodType:     userDetail.BloodType,
-			Rhesus:        userDetail.Rhesus,
-			PhoneNumber:   userDetail.PhoneNumber,
-			Address:       userDetail.Address,
-			IsActiveDonor: userDetail.IsActiveDonor,
-			CreatedAt:     userDetail.CreatedAt,
-			UpdatedAt:     userDetail.UpdatedAt,
-		}
-	}
-
-	helper.SendSuccessResponse(c, http.StatusOK, "Profile retrieved successfully", profileResponse)
+	helper.SendSuccessResponse(c, http.StatusOK, "User profile retrieved successfully", response)
 }
 
 // UpdateProfile godoc
