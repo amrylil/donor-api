@@ -5,9 +5,11 @@ import (
 	"donor-api/internal/delivery/http/helper"
 	"donor-api/internal/usecase"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/jinzhu/copier"
 )
 
 type ProfileHandler struct {
@@ -18,6 +20,41 @@ func NewProfileHandler(userUC usecase.UserUsecase) *ProfileHandler {
 	return &ProfileHandler{
 		userUsecase: userUC,
 	}
+}
+
+// GetAll godoc
+// @Summary      Get all users
+// @Description  Mengambil daftar semua lokasi dengan paginasi
+// @Tags         User
+// @Produce      json
+// @Security     BearerAuth
+// @Param        page   query     int  false  "Nomor halaman"  default(1)
+// @Param        limit  query     int  false  "Jumlah item per halaman"  default(10)
+// @Success      200    {object}  dto.SuccessWrapper  "Berhasil mengambil daftar lokasi"
+// @Failure      500    {object}  dto.ErrorWrapper    "Terjadi kesalahan internal"
+// @Router       /users [get]
+func (h *ProfileHandler) GetAll(c *gin.Context) {
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
+
+	items, total, err := h.userUsecase.FindAll(c.Request.Context(), page, limit)
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	var itemResponses []dto.UserResponse
+	copier.Copy(&itemResponses, &items)
+
+	for i := range items {
+		itemResponses[i].ID = items[i].ID.String()
+	}
+	paginatedResponse := dto.PaginatedResponse[dto.UserResponse]{
+		Data:       itemResponses,
+		TotalItems: total,
+		Page:       page,
+		Limit:      limit,
+	}
+	helper.SendSuccessResponse(c, http.StatusOK, "Successfully retrieved users", paginatedResponse)
 }
 
 // GetProfile godoc

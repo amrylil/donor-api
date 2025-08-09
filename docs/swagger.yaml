@@ -1333,6 +1333,36 @@ paths:
       summary: Update a stock
       tags:
       - Stocks
+  /users:
+    get:
+      description: Mengambil daftar semua lokasi dengan paginasi
+      parameters:
+      - default: 1
+        description: Nomor halaman
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Jumlah item per halaman
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Berhasil mengambil daftar lokasi
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Get all users
+      tags:
+      - User
 securityDefinitions:
   BearerAuth:
     in: header

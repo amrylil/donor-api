@@ -1740,6 +1740,53 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Mengambil daftar semua lokasi dengan paginasi",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Nomor halaman",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Jumlah item per halaman",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil daftar lokasi",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SuccessWrapper"
+                        }
+                    },
+                    "500": {
+                        "description": "Terjadi kesalahan internal",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorWrapper"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

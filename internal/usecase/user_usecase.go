@@ -15,6 +15,7 @@ import (
 type UserUsecase interface {
 	GetProfile(ctx context.Context, userID uuid.UUID) (*dto.UserResponse, *dto.UserDetailResponse, error)
 	UpdateProfile(ctx context.Context, userID uuid.UUID, req dto.UserRequest) (entity.User, error)
+	FindAll(ctx context.Context, page, limit int) ([]entity.User, int64, error)
 
 	// user detail
 	CreateUserDetail(ctx context.Context, userID uuid.UUID, req dto.UserDetailRequest) (entity.UserDetail, error)
@@ -31,6 +32,11 @@ func NewUserUsecase(userRepo repository.UserRepository) UserUsecase {
 	return &userUsecaseImpl{
 		userRepo: userRepo,
 	}
+}
+
+func (uc *userUsecaseImpl) FindAll(ctx context.Context, page, limit int) ([]entity.User, int64, error) {
+	offset := (page - 1) * limit
+	return uc.userRepo.FindAll(ctx, limit, offset)
 }
 
 func (uc *userUsecaseImpl) GetProfile(ctx context.Context, userID uuid.UUID) (*dto.UserResponse, *dto.UserDetailResponse, error) {

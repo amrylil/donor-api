@@ -11,13 +11,17 @@ func InitProfileRoutes(
 	profileHandler *handler.ProfileHandler,
 	authMiddleware gin.HandlerFunc,
 ) {
-	userRoutes := router.Group("/profile")
+	profilRoutes := router.Group("/profile")
 
 	{
-		userRoutes.Use(authMiddleware)
-		userRoutes.GET("/", profileHandler.GetProfile)
-		userRoutes.POST("/create", profileHandler.CreateMyDetail)
-		userRoutes.PUT("/update", profileHandler.UpdateProfile)
-		userRoutes.PUT("/detail/update", profileHandler.UpdateMyDetail)
+		profilRoutes.Use(authMiddleware)
+		profilRoutes.GET("/", profileHandler.GetProfile)
+		profilRoutes.POST("/create", profileHandler.CreateMyDetail)
+		profilRoutes.PUT("/update", profileHandler.UpdateProfile)
+		profilRoutes.PUT("/detail/update", profileHandler.UpdateMyDetail)
 	}
+
+	userRoutes := router.Group("/users").Use(authMiddleware)
+
+	userRoutes.GET("/", profileHandler.GetAll)
 }

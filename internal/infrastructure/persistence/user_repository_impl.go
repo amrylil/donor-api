@@ -21,6 +21,18 @@ func (r *userRepositoryImpl) Save(ctx context.Context, user *entity.User) error 
 	return r.db.WithContext(ctx).Create(user).Error
 }
 
+func (r *userRepositoryImpl) FindAll(ctx context.Context, limit, offset int) ([]entity.User, int64, error) {
+	var users []entity.User
+	var total int64
+	if err := r.db.WithContext(ctx).Model(&entity.User{}).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	if err := r.db.WithContext(ctx).Limit(limit).Offset(offset).Find(&users).Error; err != nil {
+		return nil, 0, err
+	}
+	return users, total, nil
+}
+
 func (r *userRepositoryImpl) FindByEmail(ctx context.Context, email string) (*entity.User, error) {
 	var user entity.User
 	err := r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
