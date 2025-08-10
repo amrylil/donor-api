@@ -59,8 +59,8 @@ func main() {
 	fmt.Println("✅ Migrasi database berhasil!")
 
 	router := routes.NewAPIRoutes(db)
-	// swaggerURL := ginSwagger.URL("https://donor-darah.duckdns.org/swagger/doc.json")
-	swaggerURL := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
+	swaggerURL := ginSwagger.URL("https://donor-darah.duckdns.org/swagger/doc.json")
+	// swaggerURL := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, swaggerURL))
 
 	log.Printf("🚀 Server berjalan di http://localhost:8080/api/v1")
