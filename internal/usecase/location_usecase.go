@@ -6,7 +6,6 @@ import (
 	"donor-api/internal/delivery/http/helper"
 	"donor-api/internal/entity"
 	"donor-api/internal/repository"
-	"log"
 
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
@@ -15,7 +14,7 @@ import (
 // --- Interface ---
 type LocationUsecase interface {
 	Create(ctx context.Context, req dto.LocationRequest, tenantID uuid.UUID) (*entity.Location, error)
-	FindAll(ctx context.Context, page, limit int) ([]entity.Location, int64, error)
+	FindAll(ctx context.Context, page, limit int, tenantID uuid.UUID) ([]entity.Location, int64, error)
 	FindByID(ctx context.Context, id uuid.UUID) (entity.Location, error)
 	Update(ctx context.Context, id uuid.UUID, req dto.LocationRequest) (entity.Location, error)
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -37,8 +36,6 @@ func (uc *locationUsecaseImpl) Create(ctx context.Context, req dto.LocationReque
 
 	location.Slug = helper.GenerateSlug(req.LocationName)
 
-	log.Print("tenantID: ", tenantID)
-
 	location.TenantID = tenantID
 
 	err := uc.repo.Save(ctx, location)
@@ -48,7 +45,10 @@ func (uc *locationUsecaseImpl) Create(ctx context.Context, req dto.LocationReque
 	return location, err
 }
 
-func (uc *locationUsecaseImpl) FindAll(ctx context.Context, page, limit int) ([]entity.Location, int64, error) {
+func (uc *locationUsecaseImpl) FindAll(ctx context.Context, page, limit int, tenantID uuid.UUID) ([]entity.Location, int64, error) {
+	if tenantID != uuid.Nil {
+		return uc.repo.FindByTenantID(ctx, limit, (page-1)*limit, tenantID)
+	}
 	offset := (page - 1) * limit
 	return uc.repo.FindAll(ctx, limit, offset)
 }

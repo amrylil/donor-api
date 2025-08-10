@@ -41,6 +41,17 @@ func (r *locationRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (en
 	err := r.db.WithContext(ctx).First(&location, id).Error
 	return location, err
 }
+func (r *locationRepositoryImpl) FindByTenantID(ctx context.Context, limit, offset int, tenantID uuid.UUID) ([]entity.Location, int64, error) {
+	var locations []entity.Location
+	var total int64
+	if err := r.db.WithContext(ctx).Model(&entity.Location{}).Where("tenant_id = ?", tenantID).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	err := r.db.WithContext(ctx).Limit(limit).Offset(offset).
+		Where("tenant_id = ?", tenantID).
+		Find(&locations).Error
+	return locations, total, err
+}
 
 func (r *locationRepositoryImpl) Update(ctx context.Context, location entity.Location) (entity.Location, error) {
 	err := r.db.WithContext(ctx).Save(&location).Error

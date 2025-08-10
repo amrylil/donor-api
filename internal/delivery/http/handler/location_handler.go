@@ -39,17 +39,12 @@ func (h *LocationHandler) Create(c *gin.Context) {
 		return
 	}
 
-	tenantIDValue, exists := c.Get("tenantID")
-	if !exists {
-		helper.SendErrorResponse(c, http.StatusUnauthorized, "Tenant ID not found")
+	tenantID, err := helper.GetContextValue(c, "tenantID")
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	tenantID, ok := tenantIDValue.(uuid.UUID)
-	if !ok {
-		helper.SendErrorResponse(c, http.StatusInternalServerError, "Invalid tenant ID format")
-		return
-	}
-	result, err := h.usecase.Create(c.Request.Context(), req, tenantID)
+	result, err := h.usecase.Create(c.Request.Context(), req, *tenantID)
 	if err != nil {
 		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -77,7 +72,14 @@ func (h *LocationHandler) GetAll(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "10"))
 
-	items, total, err := h.usecase.FindAll(c.Request.Context(), page, limit)
+	tenantID, err := helper.GetContextValue(c, "tenantID")
+
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	items, total, err := h.usecase.FindAll(c.Request.Context(), page, limit, *tenantID)
 	if err != nil {
 		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -86,7 +88,6 @@ func (h *LocationHandler) GetAll(c *gin.Context) {
 	var itemResponses []dto.LocationResponse
 	copier.Copy(&itemResponses, &items)
 
-	// ID perlu di-mapping manual karena tipe berbeda (uuid.UUID -> string)
 	for i := range items {
 		itemResponses[i].ID = items[i].ID.String()
 	}

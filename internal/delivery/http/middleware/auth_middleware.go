@@ -59,7 +59,11 @@ func AuthMiddleware(jwtService *security.JWTService) gin.HandlerFunc {
 				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid UUID format for tenant ID"})
 				return
 			}
-			c.Set("tenantID", tenantID)
+
+			if role != "superadmin" {
+				c.Set("tenantID", tenantID)
+			}
+
 		}
 
 		c.Set("userID", userID)

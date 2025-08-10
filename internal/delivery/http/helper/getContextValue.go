@@ -10,11 +10,14 @@ import (
 func GetContextValue(c *gin.Context, key string) (*uuid.UUID, error) {
 	valueContext, exists := c.Get(key)
 	if !exists {
-		return nil, errors.New("tenant ID not found in context")
+		nilUUID := uuid.Nil
+		return &nilUUID, nil
 	}
+
 	value, ok := valueContext.(uuid.UUID)
 	if !ok {
-		return nil, errors.New("invalid tenant ID format")
+		return nil, errors.New("invalid UUID format")
 	}
+
 	return &value, nil
 }
