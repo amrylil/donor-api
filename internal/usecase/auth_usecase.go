@@ -137,10 +137,20 @@ func (u *authUsecaseImpl) AuthenticateWithGoogle(ctx context.Context, idTokenStr
 
 		fmt.Printf("Pengguna tidak ditemukan, membuat akun baru via Google...\n")
 
+		newTenant := &entity.Tenant{
+			Name: name,
+			Slug: helper.GenerateSlug(name),
+		}
+		if err := u.tenantRepo.Save(ctx, newTenant); err != nil {
+			return nil, fmt.Errorf("failed to create tenant: %w", err)
+		}
+		tenantID := &newTenant.ID
+
 		newUser := &entity.User{
-			Name:  name,
-			Email: email,
-			Role:  "donor",
+			Name:     name,
+			Email:    email,
+			TenantID: *tenantID,
+			Role:     "donor",
 		}
 		if err := u.userRepo.Save(ctx, newUser); err != nil {
 			return nil, fmt.Errorf("gagal membuat user: %w", err)
