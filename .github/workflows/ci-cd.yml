@@ -1,5 +1,3 @@
-# .github/workflows/ci-cd.yml
-
 name: CI/CD for Donor API
 
 on:
@@ -8,7 +6,6 @@ on:
       - main
 
 jobs:
-  # Job untuk testing
   test:
     runs-on: ubuntu-latest
     steps:
@@ -23,7 +20,6 @@ jobs:
       - name: Run tests
         run: go test ./...
 
-  # Job untuk build dan deploy
   deploy:
     runs-on: ubuntu-latest
     needs: test
@@ -43,7 +39,6 @@ jobs:
         with:
           context: .
           push: true
-          # Membuat 2 tag: 'latest' dan satu tag unik berdasarkan ID commit
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/donor-api:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/donor-api:${{ github.sha }}
@@ -55,26 +50,14 @@ jobs:
           username: ${{ secrets.VPS_SSH_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            # Tentukan variabel untuk nama image dan tag unik
-            IMAGE_NAME=${{ secrets.DOCKERHUB_USERNAME }}/donor-api
-            IMAGE_TAG=${{ github.sha }}
-
-            # Masuk ke direktori proyek di VPS
             cd /home/ubuntu/donor-api
 
-            # Buat file .env dari secret
+            git pull origin main
+
             echo "${{ secrets.ENV_FILE }}" > .env
 
-            # Tarik image spesifik yang baru dibuat dari Docker Hub
-            docker pull $IMAGE_NAME:$IMAGE_TAG
+            docker compose pull
 
-            # Ganti baris 'image:' di docker-compose.yml dengan tag baru
-            # Ini memastikan compose akan menggunakan image yang benar
-            sed -i "s|image: .*|image: $IMAGE_NAME:$IMAGE_TAG|g" docker-compose.yml
+            docker compose up -d
 
-            # Nyalakan kembali aplikasi. 'up' akan otomatis membuat ulang container
-            # karena nama image di file compose berubah.
-            docker compose up -d --no-deps app
-
-            # Hapus image lama yang tidak terpakai untuk menghemat ruang
             docker image prune -f
