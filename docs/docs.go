@@ -1824,6 +1824,7 @@ const docTemplate = `{
             "required": [
                 "donation_date",
                 "location_id",
+                "name",
                 "status"
             ],
             "properties": {
@@ -1831,10 +1832,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "event_id": {
-                    "description": "Opsional, bisa tidak diisi",
                     "type": "string"
                 },
                 "location_id": {
+                    "type": "string"
+                },
+                "name": {
                     "type": "string"
                 },
                 "status": {

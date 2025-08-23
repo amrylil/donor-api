@@ -21,9 +21,10 @@ definitions:
       donation_date:
         type: string
       event_id:
-        description: Opsional, bisa tidak diisi
         type: string
       location_id:
+        type: string
+      name:
         type: string
       status:
         enum:
@@ -34,6 +35,7 @@ definitions:
     required:
     - donation_date
     - location_id
+    - name
     - status
     type: object
   dto.ErrorWrapper:

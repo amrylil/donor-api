@@ -45,9 +45,34 @@ func (h *DonationHandler) Create(c *gin.Context) {
 		return
 	}
 
+	value, err := helper.GetContextAnyValue(c, "role")
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	role, ok := value.(string)
+	if !ok {
+		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	userID, err := helper.GetContextValue(c, "userID")
+
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
 	var res dto.DonationResponse
 	copier.Copy(&res, &result)
 	res.ID = result.ID.String()
+
+	if role == "admin" {
+		res.UserID = ""
+	}
+	res.UserID = userID.String()
 
 	helper.SendSuccessResponse(c, http.StatusCreated, "Donation created successfully", res)
 }

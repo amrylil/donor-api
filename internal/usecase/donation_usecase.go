@@ -10,7 +10,6 @@ import (
 	"github.com/jinzhu/copier"
 )
 
-// --- Interface ---
 type DonationUsecase interface {
 	Create(ctx context.Context, req dto.CreateDonationRequest) (entity.Donation, error)
 	FindAll(ctx context.Context, page, limit int) ([]entity.Donation, int64, error)
@@ -19,7 +18,6 @@ type DonationUsecase interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
-// --- Implementation ---
 type donationUsecaseImpl struct {
 	repo repository.DonationRepository
 }

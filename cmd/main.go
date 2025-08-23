@@ -41,7 +41,7 @@ func main() {
 		log.Fatalf("❌ Gagal terhubung ke database: %v", err)
 	}
 	fmt.Println("✅ Berhasil terhubung ke database!")
-
+	db.Migrator().DropTable(&entity.Donation{})
 	err = db.AutoMigrate(
 		&entity.Tenant{},
 		&entity.Location{},

@@ -21,3 +21,13 @@ func GetContextValue(c *gin.Context, key string) (*uuid.UUID, error) {
 
 	return &value, nil
 }
+
+func GetContextAnyValue(c *gin.Context, key string) (any, error) {
+	valueContext, exists := c.Get(key)
+	if !exists {
+		return nil, errors.New("value context not found")
+
+	}
+
+	return &valueContext, nil
+}
