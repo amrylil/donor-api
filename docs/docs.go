@@ -1292,64 +1292,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Memperbarui informasi dasar (nama, email) dari pengguna yang sedang login",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Profile"
-                ],
-                "summary": "Update current user's profile",
-                "parameters": [
-                    {
-                        "description": "Data Profil yang Diperbarui",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.UserRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Profil berhasil diperbarui",
-                        "schema": {
-                            "$ref": "#/definitions/dto.SuccessWrapper"
-                        }
-                    },
-                    "400": {
-                        "description": "Request tidak valid",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ErrorWrapper"
-                        }
-                    },
-                    "401": {
-                        "description": "Tidak terautentikasi",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ErrorWrapper"
-                        }
-                    },
-                    "500": {
-                        "description": "Terjadi kesalahan internal",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ErrorWrapper"
-                        }
-                    }
-                }
             }
         },
-        "/profile/details": {
+        "/profile/detail": {
             "get": {
                 "security": [
                     {
@@ -1384,7 +1329,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/profile/detail/update": {
             "put": {
                 "security": [
                     {
@@ -1439,7 +1386,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/profile/details": {
             "post": {
                 "security": [
                     {
@@ -1471,6 +1420,63 @@ const docTemplate = `{
                 "responses": {
                     "201": {
                         "description": "Detail profil berhasil dibuat",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SuccessWrapper"
+                        }
+                    },
+                    "400": {
+                        "description": "Request tidak valid",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorWrapper"
+                        }
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorWrapper"
+                        }
+                    },
+                    "500": {
+                        "description": "Terjadi kesalahan internal",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorWrapper"
+                        }
+                    }
+                }
+            }
+        },
+        "/profile/update": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Memperbarui informasi dasar (nama, email) dari pengguna yang sedang login",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Update current user's profile",
+                "parameters": [
+                    {
+                        "description": "Data Profil yang Diperbarui",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Profil berhasil diperbarui",
                         "schema": {
                             "$ref": "#/definitions/dto.SuccessWrapper"
                         }

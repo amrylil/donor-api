@@ -95,6 +95,8 @@ func (uc *userUsecaseImpl) CreateUserDetail(ctx context.Context, userID uuid.UUI
 		DateOfBirth:   req.DateOfBirth,
 		BloodType:     req.BloodType,
 		Rhesus:        req.Rhesus,
+		Latitude:      req.Latitude,
+		Longitude:     req.Longitude,
 		PhoneNumber:   req.PhoneNumber,
 		Address:       req.Address,
 		IsActiveDonor: req.IsActiveDonor,

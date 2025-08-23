@@ -1046,43 +1046,7 @@ paths:
       summary: Get current user's profile
       tags:
       - Profile
-    put:
-      consumes:
-      - application/json
-      description: Memperbarui informasi dasar (nama, email) dari pengguna yang sedang
-        login
-      parameters:
-      - description: Data Profil yang Diperbarui
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/dto.UserRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Profil berhasil diperbarui
-          schema:
-            $ref: '#/definitions/dto.SuccessWrapper'
-        "400":
-          description: Request tidak valid
-          schema:
-            $ref: '#/definitions/dto.ErrorWrapper'
-        "401":
-          description: Tidak terautentikasi
-          schema:
-            $ref: '#/definitions/dto.ErrorWrapper'
-        "500":
-          description: Terjadi kesalahan internal
-          schema:
-            $ref: '#/definitions/dto.ErrorWrapper'
-      security:
-      - BearerAuth: []
-      summary: Update current user's profile
-      tags:
-      - Profile
-  /profile/details:
+  /profile/detail:
     get:
       description: Mengambil profil detail dari pengguna yang sedang login
       produces:
@@ -1105,6 +1069,43 @@ paths:
       summary: Get my user detail
       tags:
       - Profile Details
+  /profile/detail/update:
+    put:
+      consumes:
+      - application/json
+      description: Memperbarui profil detail dari pengguna yang sedang login
+      parameters:
+      - description: Data Detail Profil yang Diperbarui
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserDetailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Detail profil berhasil diperbarui
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "401":
+          description: Tidak terautentikasi
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Update my user detail
+      tags:
+      - Profile Details
+  /profile/details:
     post:
       consumes:
       - application/json
@@ -1141,22 +1142,24 @@ paths:
       summary: Create my user detail
       tags:
       - Profile Details
+  /profile/update:
     put:
       consumes:
       - application/json
-      description: Memperbarui profil detail dari pengguna yang sedang login
+      description: Memperbarui informasi dasar (nama, email) dari pengguna yang sedang
+        login
       parameters:
-      - description: Data Detail Profil yang Diperbarui
+      - description: Data Profil yang Diperbarui
         in: body
         name: body
         required: true
         schema:
-          $ref: '#/definitions/dto.UserDetailRequest'
+          $ref: '#/definitions/dto.UserRequest'
       produces:
       - application/json
       responses:
         "200":
-          description: Detail profil berhasil diperbarui
+          description: Profil berhasil diperbarui
           schema:
             $ref: '#/definitions/dto.SuccessWrapper'
         "400":
@@ -1173,9 +1176,9 @@ paths:
             $ref: '#/definitions/dto.ErrorWrapper'
       security:
       - BearerAuth: []
-      summary: Update my user detail
+      summary: Update current user's profile
       tags:
-      - Profile Details
+      - Profile
   /stocks:
     get:
       description: Mengambil daftar semua stok darah dengan paginasi

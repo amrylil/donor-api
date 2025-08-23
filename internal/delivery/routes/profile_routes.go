@@ -15,8 +15,8 @@ func InitProfileRoutes(
 
 	{
 		profilRoutes.Use(authMiddleware)
-		profilRoutes.GET("/", profileHandler.GetProfile)
-		profilRoutes.POST("/create", profileHandler.CreateMyDetail)
+		profilRoutes.GET("/detail", profileHandler.GetProfile)
+		profilRoutes.POST("/detail/create", profileHandler.CreateMyDetail)
 		profilRoutes.PUT("/update", profileHandler.UpdateProfile)
 		profilRoutes.PUT("/detail/update", profileHandler.UpdateMyDetail)
 	}
