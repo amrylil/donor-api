@@ -41,19 +41,19 @@ func main() {
 		log.Fatalf("❌ Gagal terhubung ke database: %v", err)
 	}
 	fmt.Println("✅ Berhasil terhubung ke database!")
-	// err = db.Migrator().DropTable(
-	// 	&entity.Tenant{},
-	// 	&entity.Location{},
-	// 	&entity.User{},
-	// 	&entity.UserDetail{},
-	// 	&entity.Event{},
-	// 	&entity.Stock{},
-	// 	&entity.Donation{},
-	// 	&entity.BloodRequest{},
-	// )
-	// if err != nil {
-	// 	log.Print(err.Error())
-	// }
+	err = db.Migrator().DropTable(
+		&entity.Tenant{},
+		&entity.Location{},
+		&entity.User{},
+		&entity.UserDetail{},
+		&entity.Event{},
+		&entity.Stock{},
+		&entity.Donation{},
+		&entity.BloodRequest{},
+	)
+	if err != nil {
+		log.Print(err.Error())
+	}
 
 	err = db.AutoMigrate(
 		&entity.Tenant{},
@@ -73,8 +73,8 @@ func main() {
 	fmt.Println("✅ Migrasi database berhasil!")
 
 	router := routes.NewAPIRoutes(db)
-	// swaggerURL := ginSwagger.URL("https://donor-darah.duckdns.org/swagger/doc.json")
-	swaggerURL := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
+	swaggerURL := ginSwagger.URL("https://donor-darah.duckdns.org/swagger/doc.json")
+	// swaggerURL := ginSwagger.URL("http://localhost:8080/swagger/doc.json")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, swaggerURL))
 
 	log.Printf("🚀 Server berjalan di http://localhost:8080/api/v1")
