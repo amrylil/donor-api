@@ -22,12 +22,17 @@ func GetContextValue(c *gin.Context, key string) (*uuid.UUID, error) {
 	return &value, nil
 }
 
-func GetContextAnyValue(c *gin.Context, key string) (any, error) {
-	valueContext, exists := c.Get(key)
+func GetRoleFromContext(c *gin.Context) (*string, error) {
+	valueContext, exists := c.Get("role")
 	if !exists {
 		return nil, errors.New("value context not found")
 
 	}
 
-	return &valueContext, nil
+	value, ok := valueContext.(string)
+	if !ok {
+		return nil, errors.New("invalid UUID format")
+	}
+
+	return &value, nil
 }

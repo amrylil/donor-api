@@ -7,7 +7,7 @@ import (
 )
 
 func InitProfileRoutes(
-	router *gin.RouterGroup, // Menerima grup router utama (misal: /api/v1)
+	router *gin.RouterGroup,
 	profileHandler *handler.ProfileHandler,
 	authMiddleware gin.HandlerFunc,
 ) {
@@ -24,4 +24,5 @@ func InitProfileRoutes(
 	userRoutes := router.Group("/users").Use(authMiddleware)
 
 	userRoutes.GET("/", profileHandler.GetAll)
+	userRoutes.POST("/", profileHandler.CreateAllUserData)
 }

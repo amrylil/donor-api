@@ -2,6 +2,7 @@ package helper
 
 import (
 	"donor-api/internal/delivery/http/dto"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -10,6 +11,14 @@ func SendSuccessResponse[T any](c *gin.Context, statusCode int, message string, 
 		Success: true,
 		Message: message,
 		Data:    data,
+	}
+	c.JSON(statusCode, response)
+}
+
+func SendSuccessResponseWithOutData(c *gin.Context, statusCode int, message string) {
+	response := dto.APIResponseWithOutData{
+		Success: true,
+		Message: message,
 	}
 	c.JSON(statusCode, response)
 }

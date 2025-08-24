@@ -1792,6 +1792,61 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Membuat profil detail (NIK, alamat, dll.) untuk pengguna yang sedang login. Hanya bisa dibuat sekali.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Create all user data",
+                "parameters": [
+                    {
+                        "description": "Data Detail Profil",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UserDetailRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Detail profil berhasil dibuat",
+                        "schema": {
+                            "$ref": "#/definitions/dto.SuccessWrapper"
+                        }
+                    },
+                    "400": {
+                        "description": "Request tidak valid",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorWrapper"
+                        }
+                    },
+                    "401": {
+                        "description": "Tidak terautentikasi",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorWrapper"
+                        }
+                    },
+                    "500": {
+                        "description": "Terjadi kesalahan internal",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ErrorWrapper"
+                        }
+                    }
+                }
             }
         }
     },
@@ -2025,7 +2080,6 @@ const docTemplate = `{
                 "full_name",
                 "gender",
                 "is_active_donor",
-                "nik",
                 "phone_number",
                 "rhesus"
             ],
@@ -2063,9 +2117,6 @@ const docTemplate = `{
                 },
                 "longitude": {
                     "type": "number"
-                },
-                "nik": {
-                    "type": "string"
                 },
                 "phone_number": {
                     "type": "string",

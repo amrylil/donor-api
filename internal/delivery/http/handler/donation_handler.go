@@ -4,6 +4,7 @@ import (
 	"donor-api/internal/delivery/http/dto"
 	"donor-api/internal/delivery/http/helper"
 	"donor-api/internal/usecase"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -39,26 +40,27 @@ func (h *DonationHandler) Create(c *gin.Context) {
 		return
 	}
 
-	result, err := h.usecase.Create(c.Request.Context(), req)
+	userID, err := helper.GetContextValue(c, "userID")
+
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusBadRequest, err.Error())
+		log.Print("find error when get user_id from the context: ", err.Error())
+		return
+	}
+
+	role, err := helper.GetRoleFromContext(c)
+
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusBadRequest, err.Error())
+		log.Print("find error when get role from the context: ", err.Error())
+		return
+	}
+
+	result, err := h.usecase.Create(c.Request.Context(), req, userID, *role)
 	if err != nil {
 		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-
-	value, err := helper.GetContextAnyValue(c, "role")
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	role, ok := value.(string)
-	if !ok {
-		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	userID, err := helper.GetContextValue(c, "userID")
 
 	if err != nil {
 		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
@@ -68,11 +70,6 @@ func (h *DonationHandler) Create(c *gin.Context) {
 	var res dto.DonationResponse
 	copier.Copy(&res, &result)
 	res.ID = result.ID.String()
-
-	if role == "admin" {
-		res.UserID = ""
-	}
-	res.UserID = userID.String()
 
 	helper.SendSuccessResponse(c, http.StatusCreated, "Donation created successfully", res)
 }

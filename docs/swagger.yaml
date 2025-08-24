@@ -180,8 +180,6 @@ definitions:
         type: number
       longitude:
         type: number
-      nik:
-        type: string
       phone_number:
         maxLength: 15
         minLength: 10
@@ -200,7 +198,6 @@ definitions:
     - full_name
     - gender
     - is_active_donor
-    - nik
     - phone_number
     - rhesus
     type: object
@@ -1366,6 +1363,42 @@ paths:
       security:
       - BearerAuth: []
       summary: Get all users
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: Membuat profil detail (NIK, alamat, dll.) untuk pengguna yang sedang
+        login. Hanya bisa dibuat sekali.
+      parameters:
+      - description: Data Detail Profil
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserDetailRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Detail profil berhasil dibuat
+          schema:
+            $ref: '#/definitions/dto.SuccessWrapper'
+        "400":
+          description: Request tidak valid
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "401":
+          description: Tidak terautentikasi
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+        "500":
+          description: Terjadi kesalahan internal
+          schema:
+            $ref: '#/definitions/dto.ErrorWrapper'
+      security:
+      - BearerAuth: []
+      summary: Create all user data
       tags:
       - User
 securityDefinitions:

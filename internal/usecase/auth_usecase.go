@@ -71,10 +71,10 @@ func (u *authUsecaseImpl) Register(ctx context.Context, req dto.RegisterRequest,
 
 	user := &entity.User{
 		Name:       req.Name,
-		Email:      req.Email,
-		Password:   hashedPassword,
+		Email:      &req.Email,
+		Password:   &hashedPassword,
 		Role:       role,
-		TenantID:   *tenantID,
+		TenantID:   tenantID,
 		LocationID: locationID,
 	}
 
@@ -91,7 +91,7 @@ func (u *authUsecaseImpl) Login(ctx context.Context, req dto.LoginRequest) (*dto
 		return nil, errors.New("invalid credentials")
 	}
 
-	if !security.CheckPasswordHash(req.Password, user.Password) {
+	if !security.CheckPasswordHash(req.Password, *user.Password) {
 		return nil, errors.New("invalid credentials")
 	}
 
@@ -99,7 +99,7 @@ func (u *authUsecaseImpl) Login(ctx context.Context, req dto.LoginRequest) (*dto
 		return nil, errors.New("invalid credentials")
 	}
 
-	token, err := u.jwtService.GenerateToken(user.ID, user.Role, user.TenantID)
+	token, err := u.jwtService.GenerateToken(user.ID, user.Role, *user.TenantID)
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +107,7 @@ func (u *authUsecaseImpl) Login(ctx context.Context, req dto.LoginRequest) (*dto
 	userResponse := dto.UserResponse{
 		ID:    user.ID.String(),
 		Name:  user.Name,
-		Email: user.Email,
+		Email: *user.Email,
 		Role:  user.Role,
 	}
 
@@ -148,8 +148,8 @@ func (u *authUsecaseImpl) AuthenticateWithGoogle(ctx context.Context, idTokenStr
 
 		newUser := &entity.User{
 			Name:     name,
-			Email:    email,
-			TenantID: *tenantID,
+			Email:    &email,
+			TenantID: tenantID,
 			Role:     "donor",
 		}
 		if err := u.userRepo.Save(ctx, newUser); err != nil {
@@ -161,7 +161,7 @@ func (u *authUsecaseImpl) AuthenticateWithGoogle(ctx context.Context, idTokenStr
 		fmt.Printf("Pengguna ditemukan di sistem: %s\n", user.Email)
 	}
 
-	token, err := u.jwtService.GenerateToken(user.ID, user.Role, user.TenantID)
+	token, err := u.jwtService.GenerateToken(user.ID, user.Role, *user.TenantID)
 
 	if err != nil {
 		return nil, err
@@ -170,7 +170,7 @@ func (u *authUsecaseImpl) AuthenticateWithGoogle(ctx context.Context, idTokenStr
 	userResponse := dto.UserResponse{
 		ID:    user.ID.String(),
 		Name:  user.Name,
-		Email: user.Email,
+		Email: *user.Email,
 		Role:  user.Role,
 	}
 

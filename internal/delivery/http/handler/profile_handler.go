@@ -57,6 +57,41 @@ func (h *ProfileHandler) GetAll(c *gin.Context) {
 	helper.SendSuccessResponse(c, http.StatusOK, "Successfully retrieved users", paginatedResponse)
 }
 
+// CreateMyDetail godoc
+// @Summary      Create all user data
+// @Description  Membuat profil detail (NIK, alamat, dll.) untuk pengguna yang sedang login. Hanya bisa dibuat sekali.
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Security     BearerAuth
+// @Param        body  body      dto.UserDetailRequest  true  "Data Detail Profil"
+// @Success      201   {object}  dto.SuccessWrapper     "Detail profil berhasil dibuat"
+// @Failure      400   {object}  dto.ErrorWrapper       "Request tidak valid"
+// @Failure      401   {object}  dto.ErrorWrapper       "Tidak terautentikasi"
+// @Failure      500   {object}  dto.ErrorWrapper       "Terjadi kesalahan internal"
+// @Router       /users [post]
+func (h *ProfileHandler) CreateAllUserData(c *gin.Context) {
+
+	var req dto.UserDetailRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		helper.SendErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tenantID, err := helper.GetContextValue(c, "tenantID")
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	err = h.userUsecase.Create(c, req, tenantID)
+	if err != nil {
+		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	helper.SendSuccessResponseWithOutData(c, http.StatusCreated, "User detail created successfully")
+}
+
 // GetProfile godoc
 // @Summary      Get current user's profile
 // @Description  Mengambil profil dasar dan detail dari pengguna yang sedang login
@@ -123,7 +158,7 @@ func (h *ProfileHandler) UpdateProfile(c *gin.Context) {
 	userResponse := dto.UserResponse{
 		ID:    updatedUser.ID.String(),
 		Name:  updatedUser.Name,
-		Email: updatedUser.Email,
+		Email: *updatedUser.Email,
 		Role:  updatedUser.Role,
 	}
 

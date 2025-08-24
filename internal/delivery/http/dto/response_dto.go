@@ -7,6 +7,12 @@ type APIResponse[T any] struct {
 	Error   any    `json:"error,omitempty"`
 }
 
+type APIResponseWithOutData struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+	Error   any    `json:"error,omitempty"`
+}
+
 type SuccessWrapper struct {
 	APIResponse[any]
 }

@@ -6,6 +6,7 @@ import (
 	"donor-api/internal/entity"
 	"donor-api/internal/repository"
 	"errors"
+	"log"
 
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
@@ -16,9 +17,10 @@ type UserUsecase interface {
 	GetProfile(ctx context.Context, userID uuid.UUID) (*dto.UserResponse, *dto.UserDetailResponse, error)
 	UpdateProfile(ctx context.Context, userID uuid.UUID, req dto.UserRequest) (entity.User, error)
 	FindAll(ctx context.Context, page, limit int) ([]entity.User, int64, error)
+	Create(ctx context.Context, req dto.UserDetailRequest, tenantID *uuid.UUID) error
 
 	// user detail
-	CreateUserDetail(ctx context.Context, userID uuid.UUID, req dto.UserDetailRequest) (entity.UserDetail, error)
+	CreateUserDetail(ctx context.Context, userID uuid.UUID, req dto.UserDetailRequest) (*entity.UserDetail, error)
 	GetUserDetailByUserID(ctx context.Context, userID uuid.UUID) (entity.UserDetail, error)
 	UpdateUserDetail(ctx context.Context, userID uuid.UUID, req dto.UserDetailRequest) (entity.UserDetail, error)
 }
@@ -32,6 +34,43 @@ func NewUserUsecase(userRepo repository.UserRepository) UserUsecase {
 	return &userUsecaseImpl{
 		userRepo: userRepo,
 	}
+}
+
+func (uc *userUsecaseImpl) Create(ctx context.Context, req dto.UserDetailRequest, tenantID *uuid.UUID) error {
+
+	user := entity.User{
+		Name:     req.FullName,
+		Role:     "user",
+		TenantID: tenantID,
+	}
+
+	err := uc.userRepo.Save(ctx, &user)
+
+	if err != nil {
+		log.Print(err.Error())
+		return err
+	}
+
+	userDetail := &entity.UserDetail{
+		UserID:        user.ID,
+		FullName:      req.FullName,
+		Gender:        req.Gender,
+		DateOfBirth:   req.DateOfBirth,
+		BloodType:     req.BloodType,
+		Rhesus:        req.Rhesus,
+		Latitude:      req.Latitude,
+		Longitude:     req.Longitude,
+		PhoneNumber:   req.PhoneNumber,
+		Address:       req.Address,
+		IsActiveDonor: req.IsActiveDonor,
+	}
+
+	if err = uc.userRepo.SaveDetail(ctx, userDetail); err != nil {
+		log.Print(err.Error())
+		return err
+
+	}
+	return nil
 }
 
 func (uc *userUsecaseImpl) FindAll(ctx context.Context, page, limit int) ([]entity.User, int64, error) {
@@ -81,16 +120,11 @@ func (uc *userUsecaseImpl) UpdateProfile(ctx context.Context, userID uuid.UUID, 
 	return *user, nil
 }
 
-func (uc *userUsecaseImpl) CreateUserDetail(ctx context.Context, userID uuid.UUID, req dto.UserDetailRequest) (entity.UserDetail, error) {
-	_, err := uc.userRepo.FindDetailByUserID(ctx, userID)
-	if err == nil {
-		return entity.UserDetail{}, errors.New("user detail already exists")
-	}
+func (uc *userUsecaseImpl) CreateUserDetail(ctx context.Context, userID uuid.UUID, req dto.UserDetailRequest) (*entity.UserDetail, error) {
 
 	userDetail := &entity.UserDetail{
 		UserID:        userID,
 		FullName:      req.FullName,
-		NIK:           req.NIK,
 		Gender:        req.Gender,
 		DateOfBirth:   req.DateOfBirth,
 		BloodType:     req.BloodType,
@@ -102,8 +136,12 @@ func (uc *userUsecaseImpl) CreateUserDetail(ctx context.Context, userID uuid.UUI
 		IsActiveDonor: req.IsActiveDonor,
 	}
 
-	err = uc.userRepo.SaveDetail(ctx, userDetail)
-	return *userDetail, err
+	err := uc.userRepo.SaveDetail(ctx, userDetail)
+	if err != nil {
+		log.Print(err.Error())
+		return nil, err
+	}
+	return userDetail, nil
 }
 
 func (uc *userUsecaseImpl) GetUserDetailByUserID(ctx context.Context, userID uuid.UUID) (entity.UserDetail, error) {
@@ -117,7 +155,6 @@ func (uc *userUsecaseImpl) UpdateUserDetail(ctx context.Context, userID uuid.UUI
 	}
 
 	detail.FullName = req.FullName
-	detail.NIK = req.NIK
 	detail.Gender = req.Gender
 	detail.DateOfBirth = req.DateOfBirth
 	detail.BloodType = req.BloodType
