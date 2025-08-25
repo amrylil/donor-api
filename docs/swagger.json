@@ -1873,7 +1873,8 @@
                 "donation_date",
                 "location_id",
                 "name",
-                "status"
+                "status",
+                "user_id"
             ],
             "properties": {
                 "donation_date": {
@@ -1895,6 +1896,9 @@
                         "batal",
                         "pending"
                     ]
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         },
@@ -2068,26 +2072,18 @@
             "type": "object",
             "required": [
                 "address",
-                "blood_type",
                 "date_of_birth",
                 "full_name",
                 "gender",
                 "is_active_donor",
-                "phone_number",
-                "rhesus"
+                "phone_number"
             ],
             "properties": {
                 "address": {
                     "type": "string"
                 },
                 "blood_type": {
-                    "type": "string",
-                    "enum": [
-                        "A",
-                        "B",
-                        "AB",
-                        "O"
-                    ]
+                    "type": "string"
                 },
                 "date_of_birth": {
                     "type": "string"
@@ -2117,11 +2113,7 @@
                     "minLength": 10
                 },
                 "rhesus": {
-                    "type": "string",
-                    "enum": [
-                        "+",
-                        "-"
-                    ]
+                    "type": "string"
                 },
                 "weight": {
                     "type": "number"

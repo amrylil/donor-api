@@ -32,11 +32,14 @@ definitions:
         - batal
         - pending
         type: string
+      user_id:
+        type: string
     required:
     - donation_date
     - location_id
     - name
     - status
+    - user_id
     type: object
   dto.ErrorWrapper:
     properties:
@@ -159,11 +162,6 @@ definitions:
       address:
         type: string
       blood_type:
-        enum:
-        - A
-        - B
-        - AB
-        - O
         type: string
       date_of_birth:
         type: string
@@ -185,21 +183,16 @@ definitions:
         minLength: 10
         type: string
       rhesus:
-        enum:
-        - +
-        - '-'
         type: string
       weight:
         type: number
     required:
     - address
-    - blood_type
     - date_of_birth
     - full_name
     - gender
     - is_active_donor
     - phone_number
-    - rhesus
     type: object
   dto.UserRequest:
     properties:

@@ -1880,7 +1880,8 @@ const docTemplate = `{
                 "donation_date",
                 "location_id",
                 "name",
-                "status"
+                "status",
+                "user_id"
             ],
             "properties": {
                 "donation_date": {
@@ -1902,6 +1903,9 @@ const docTemplate = `{
                         "batal",
                         "pending"
                     ]
+                },
+                "user_id": {
+                    "type": "string"
                 }
             }
         },
@@ -2075,26 +2079,18 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "address",
-                "blood_type",
                 "date_of_birth",
                 "full_name",
                 "gender",
                 "is_active_donor",
-                "phone_number",
-                "rhesus"
+                "phone_number"
             ],
             "properties": {
                 "address": {
                     "type": "string"
                 },
                 "blood_type": {
-                    "type": "string",
-                    "enum": [
-                        "A",
-                        "B",
-                        "AB",
-                        "O"
-                    ]
+                    "type": "string"
                 },
                 "date_of_birth": {
                     "type": "string"
@@ -2124,11 +2120,7 @@ const docTemplate = `{
                     "minLength": 10
                 },
                 "rhesus": {
-                    "type": "string",
-                    "enum": [
-                        "+",
-                        "-"
-                    ]
+                    "type": "string"
                 },
                 "weight": {
                     "type": "number"
