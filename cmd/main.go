@@ -41,19 +41,19 @@ func main() {
 		log.Fatalf("❌ Gagal terhubung ke database: %v", err)
 	}
 	fmt.Println("✅ Berhasil terhubung ke database!")
-	err = db.Migrator().DropTable(
-		&entity.Tenant{},
-		&entity.Location{},
-		&entity.User{},
-		&entity.UserDetail{},
-		&entity.Event{},
-		&entity.Stock{},
-		&entity.Donation{},
-		&entity.BloodRequest{},
-	)
-	if err != nil {
-		log.Print(err.Error())
-	}
+	// err = db.Migrator().DropTable(
+	// 	&entity.Tenant{},
+	// 	&entity.Location{},
+	// 	&entity.User{},
+	// 	&entity.UserDetail{},
+	// 	&entity.Event{},
+	// 	&entity.Stock{},
+	// 	&entity.Donation{},
+	// 	&entity.BloodRequest{},
+	// )
+	// if err != nil {
+	// 	log.Print(err.Error())
+	// }
 
 	err = db.AutoMigrate(
 		&entity.Tenant{},

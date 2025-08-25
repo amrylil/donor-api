@@ -70,12 +70,13 @@ func (u *authUsecaseImpl) Register(ctx context.Context, req dto.RegisterRequest,
 	tenantID := &newTenant.ID
 
 	user := &entity.User{
-		Name:       req.Name,
-		Email:      &req.Email,
-		Password:   &hashedPassword,
-		Role:       role,
-		TenantID:   tenantID,
-		LocationID: locationID,
+		Name:          req.Name,
+		Email:         &req.Email,
+		Password:      &hashedPassword,
+		Role:          role,
+		AccountStatus: "claimed",
+		TenantID:      tenantID,
+		LocationID:    locationID,
 	}
 
 	if err := u.userRepo.Save(ctx, user); err != nil {
@@ -108,7 +109,8 @@ func (u *authUsecaseImpl) Login(ctx context.Context, req dto.LoginRequest) (*dto
 		ID:    user.ID.String(),
 		Name:  user.Name,
 		Email: *user.Email,
-		Role:  user.Role,
+
+		Role: user.Role,
 	}
 
 	result := &dto.LoginResponse{
@@ -147,10 +149,11 @@ func (u *authUsecaseImpl) AuthenticateWithGoogle(ctx context.Context, idTokenStr
 		tenantID := &newTenant.ID
 
 		newUser := &entity.User{
-			Name:     name,
-			Email:    &email,
-			TenantID: tenantID,
-			Role:     "donor",
+			Name:          name,
+			Email:         &email,
+			AccountStatus: "claimed",
+			TenantID:      tenantID,
+			Role:          "donor",
 		}
 		if err := u.userRepo.Save(ctx, newUser); err != nil {
 			return nil, fmt.Errorf("gagal membuat user: %w", err)
