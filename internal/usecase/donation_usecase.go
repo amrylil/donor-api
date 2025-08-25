@@ -5,13 +5,14 @@ import (
 	"donor-api/internal/delivery/http/dto"
 	"donor-api/internal/entity"
 	"donor-api/internal/repository"
+	"log"
 
 	"github.com/google/uuid"
 	"github.com/jinzhu/copier"
 )
 
 type DonationUsecase interface {
-	Create(ctx context.Context, req dto.CreateDonationRequest, userID *uuid.UUID, role string) (entity.Donation, error)
+	Create(ctx context.Context, req dto.CreateDonationRequest) (*entity.Donation, error)
 	FindAll(ctx context.Context, page, limit int) ([]entity.Donation, int64, error)
 	FindByID(ctx context.Context, id uuid.UUID) (entity.Donation, error)
 	Update(ctx context.Context, id uuid.UUID, req dto.UpdateDonationRequest) (entity.Donation, error)
@@ -26,18 +27,23 @@ func NewDonationUsecase(repo repository.DonationRepository) DonationUsecase {
 	return &donationUsecaseImpl{repo: repo}
 }
 
-func (uc *donationUsecaseImpl) Create(ctx context.Context, req dto.CreateDonationRequest, userID *uuid.UUID, role string) (entity.Donation, error) {
+func (uc *donationUsecaseImpl) Create(ctx context.Context, req dto.CreateDonationRequest) (*entity.Donation, error) {
 	var donation entity.Donation
 	copier.Copy(&donation, &req)
 
-	if role != "admin" {
-		donation.UserID = nil
+	userID, err := uuid.Parse(req.UserID)
+	if err != nil {
+		log.Print(err.Error())
+		return nil, err
 	}
 
-	donation.UserID = (*uuid.UUID)(userID)
+	donation.UserID = &userID
 
-	err := uc.repo.Save(ctx, &donation)
-	return donation, err
+	if err := uc.repo.Save(ctx, &donation); err != nil {
+		log.Print(err.Error())
+		return nil, err
+	}
+	return &donation, err
 }
 
 func (uc *donationUsecaseImpl) FindAll(ctx context.Context, page, limit int) ([]entity.Donation, int64, error) {

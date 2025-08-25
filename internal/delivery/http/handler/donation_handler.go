@@ -4,7 +4,6 @@ import (
 	"donor-api/internal/delivery/http/dto"
 	"donor-api/internal/delivery/http/helper"
 	"donor-api/internal/usecase"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -40,23 +39,7 @@ func (h *DonationHandler) Create(c *gin.Context) {
 		return
 	}
 
-	userID, err := helper.GetContextValue(c, "userID")
-
-	if err != nil {
-		helper.SendErrorResponse(c, http.StatusBadRequest, err.Error())
-		log.Print("find error when get user_id from the context: ", err.Error())
-		return
-	}
-
-	role, err := helper.GetRoleFromContext(c)
-
-	if err != nil {
-		helper.SendErrorResponse(c, http.StatusBadRequest, err.Error())
-		log.Print("find error when get role from the context: ", err.Error())
-		return
-	}
-
-	result, err := h.usecase.Create(c.Request.Context(), req, userID, *role)
+	result, err := h.usecase.Create(c.Request.Context(), req)
 	if err != nil {
 		helper.SendErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

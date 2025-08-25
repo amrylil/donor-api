@@ -8,6 +8,7 @@ import (
 
 type CreateDonationRequest struct {
 	LocationID   uuid.UUID  `json:"location_id" binding:"required"`
+	UserID       string     `json:"user_id" binding:"required"`
 	EventID      *uuid.UUID `json:"event_id"`
 	DonationDate time.Time  `json:"donation_date" binding:"required"`
 	Name         string     `json:"name" binding:"required"`
@@ -20,7 +21,7 @@ type UpdateDonationRequest struct {
 
 type DonationResponse struct {
 	ID           string    `json:"id"`
-	UserID       string    `json:"user_id,omitempty"`
+	UserID       string    `json:"user_id"`
 	LocationID   string    `json:"location_id"`
 	EventID      *string   `json:"event_id,omitempty"`
 	Name         string    `json:"name" `
