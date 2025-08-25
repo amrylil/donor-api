@@ -158,7 +158,7 @@ func (u *authUsecaseImpl) AuthenticateWithGoogle(ctx context.Context, idTokenStr
 
 		user = newUser
 	} else {
-		fmt.Printf("Pengguna ditemukan di sistem: %s\n", user.Email)
+		fmt.Print("Pengguna ditemukan di sistem: ", user.Email)
 	}
 
 	token, err := u.jwtService.GenerateToken(user.ID, user.Role, *user.TenantID)
