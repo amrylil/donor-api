@@ -8,19 +8,15 @@ RUN go mod download
 
 COPY . .
 
-# ✅ Install tzdata untuk timezone di build stage (optional, tapi tidak perlu jika tidak dijalankan di sini)
 RUN apk add --no-cache tzdata
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -o /app/main ./cmd/main.go
 
 
-# --- TAHAP 2: FINAL ---
 FROM alpine:latest
 
-# ✅ Install tzdata agar timezone seperti Asia/Singapore dikenali
 RUN apk add --no-cache tzdata
 
-# ✅ Set default timezone (optional tapi baik jika diperlukan)
 ENV TZ=Asia/Singapore
 
 WORKDIR /app

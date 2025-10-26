@@ -32,7 +32,7 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 	authMiddleware := middleware.AuthMiddleware(jwtService)
 
 	userUsecase := usecase.NewUserUsecase(userRepo)
-	profileHanlder := handler.NewProfileHandler(userUsecase)
+	profileHandler := handler.NewProfileHandler(userUsecase)
 
 	donationRepo := persistence.NewDonationRepository(db)
 	donationUsecase := usecase.NewDonationUsecase(donationRepo)
@@ -50,9 +50,11 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 	bloodRequestUsecase := usecase.NewBloodRequestUsecase(bloodRequestRepo)
 	bloodRequestHandler := handler.NewBloodRequestHandler(bloodRequestUsecase)
 
-	// Inisialisasi router
-	router := gin.Default()
+	router := gin.New()
 
+	router.Use(gin.Recovery())
+
+	// Tambahkan CORS
 	router.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -60,12 +62,10 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 		AllowCredentials: false,
 	}))
 
-	// Optional: tangani preflight request
 	router.OPTIONS("/*cors", func(c *gin.Context) {
 		c.AbortWithStatus(204)
 	})
 
-	// Group route
 	apiV1 := router.Group("/api/v1")
 
 	apiV1.GET("/", func(c *gin.Context) {
@@ -74,9 +74,10 @@ func NewAPIRoutes(db *gorm.DB) *gin.Engine {
 			"message": "API is running",
 		})
 	})
+
 	{
 		InitAuthRoutes(apiV1, authHandler, authMiddleware)
-		InitProfileRoutes(apiV1, profileHanlder, authMiddleware)
+		InitProfileRoutes(apiV1, profileHandler, authMiddleware)
 		InitDonationRoutes(apiV1, donationHandler, authMiddleware)
 		InitEventRoutes(apiV1, eventHandler)
 		InitLocationRoutes(apiV1, locationHandler, authMiddleware)
